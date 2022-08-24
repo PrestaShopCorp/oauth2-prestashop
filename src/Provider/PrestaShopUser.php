@@ -5,31 +5,6 @@ namespace PrestaShopCorp\OAuth2\Client\Provider;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Tool\ArrayAccessorTrait;
 
-/*
-League\OAuth2\Client\Provider\GenericResourceOwner Object
-(
-    [response:protected] => Array
-        (
-            [aud] => Array
-                (
-                    [0] => shop-client
-                )
-
-            [auth_time] => 1661343934
-            [email] => john.doe@prestashop.com
-            [email_verified] => 1
-            [iat] => 1661343934
-            [iss] => http://hydra:4444/
-            [name] => John Doe
-            [picture] => https://lh3.googleusercontent.com/a/AATXAJzK3D_K4_7YHFDQHFD3C_1ViDfRVDmQTukCyw=s96-c
-            [rat] => 1661343934
-            [sub] => 4rFN5bm2piPeHTYUFtUIwcyFKKKOp
-        )
-
-    [resourceOwnerId:protected] => id
-)
-*/
-
 class PrestaShopUser implements ResourceOwnerInterface
 {
     use ArrayAccessorTrait;
@@ -51,6 +26,11 @@ class PrestaShopUser implements ResourceOwnerInterface
         $this->response = $response;
     }
 
+    /**
+     * Get resource owner uuid
+     *
+     * @return string
+     */
     public function getId()
     {
         return $this->getValueByKey($this->response, 'sub');
