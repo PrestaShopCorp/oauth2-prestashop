@@ -58,7 +58,7 @@ if (!empty($_GET['error'])) {
             $prestaShopUser->getName(),
             $prestaShopUser->getEmail(),
             $prestaShopUser->getEmailVerified(),
-            $prestaShopUser->getEmailPicture(),
+            $prestaShopUser->getPicture(),
             $prestaShopUser->toArray()
         );
     
