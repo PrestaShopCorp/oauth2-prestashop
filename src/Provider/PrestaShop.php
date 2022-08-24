@@ -103,11 +103,14 @@ class PrestaShop extends AbstractProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @param array $response
+     * @param AccessToken $token
+     *
+     * @return PrestaShopUser
      */
-    protected function createResourceOwner(array $response, AccessToken $token)
+    protected function createResourceOwner(array $response, AccessToken $token): PrestaShopUser
     {
-        return new GenericResourceOwner($response, $this->responseResourceOwnerId);
+        return new PrestaShopUser($response);
     }
 
     /**
