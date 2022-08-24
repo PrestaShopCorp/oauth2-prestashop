@@ -23,7 +23,6 @@ namespace PrestaShopCorp\OAuth2\Client\Provider;
 use Lcobucci\JWT\Parser;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use League\OAuth2\Client\Provider\GenericResourceOwner;
 use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use Psr\Http\Message\ResponseInterface;
@@ -111,6 +110,20 @@ class PrestaShop extends AbstractProvider
     protected function createResourceOwner(array $response, AccessToken $token): PrestaShopUser
     {
         return new PrestaShopUser($response);
+    }
+
+    /**
+     * Requests and returns the resource owner of given access token.
+     *
+     * @param AccessToken $token
+     * @return PrestaShopUser
+     */
+    public function getResourceOwner(AccessToken $token): PrestaShopUser
+    {
+        /** @var PrestaShopUser $resourceOwner */
+        $resourceOwner = parent::getResourceOwner($token);
+
+        return $resourceOwner;
     }
 
     /**
