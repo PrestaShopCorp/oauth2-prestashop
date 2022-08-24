@@ -43,12 +43,25 @@ if (!empty($_GET['error'])) {
 } else {
     try {
         // Try to get an access token (using the authorization code grant)
-        $accessToken = $provider->getAccessToken('authorization_code', [
+        $accessToken = $prestaShopProvider->getAccessToken('authorization_code', [
             'code' => $_GET['code']
         ]);
     
         // Use this to interact with an API on the users behalf
         $token = $accessToken->getToken();
+        
+        // Get resource owner
+        $prestaShopUser = $provider->getResourceOwner($accessToken);
+        
+        var_dump(
+            $prestaShopUser->getId(),
+            $prestaShopUser->getName(),
+            $prestaShopUser->getEmail(),
+            $prestaShopUser->getEmailVerified(),
+            $prestaShopUser->getEmailPicture(),
+            $prestaShopUser->toArray()
+        );
+    
     } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
         exit($e->getMessage());
     }

@@ -20,7 +20,6 @@
 
 namespace PrestaShopCorp\OAuth2\Client\Provider;
 
-use Lcobucci\JWT\Parser;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
@@ -30,11 +29,6 @@ use Psr\Http\Message\ResponseInterface;
 class PrestaShop extends AbstractProvider
 {
     use BearerAuthorizationTrait;
-
-    /**
-     * @var string
-     */
-    private $responseResourceOwnerId = 'id';
 
     /**
      * @return string
@@ -116,6 +110,7 @@ class PrestaShop extends AbstractProvider
      * Requests and returns the resource owner of given access token.
      *
      * @param AccessToken $token
+     *
      * @return PrestaShopUser
      */
     public function getResourceOwner(AccessToken $token): PrestaShopUser
@@ -124,26 +119,5 @@ class PrestaShop extends AbstractProvider
         $resourceOwner = parent::getResourceOwner($token);
 
         return $resourceOwner;
-    }
-
-    /**
-     * Helper function to return a list of claims
-     *
-     * @param string $token
-     * @param array $claims
-     *
-     * @return array
-     */
-    public static function listTokenClaims(string $token, array $claims = []): array
-    {
-        $values = [];
-
-        $parsed = (new Parser())->parse($token);
-
-        foreach ($claims as $claim) {
-            $values[] = $parsed->claims()->get($claim);
-        }
-
-        return $values;
     }
 }
