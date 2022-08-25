@@ -124,7 +124,6 @@ JSON
         $client->method('send')
             ->willReturn($response);
 
-
         $this->provider->setHttpClient($client);
 
         $token = $this->provider->getAccessToken('authorization_code', ['code' => 'mock_authorization_code']);
@@ -154,7 +153,6 @@ JSON
         $client->method('send')
             ->withConsecutive([])
             ->willReturn($response);
-
 
         $this->provider->setHttpClient($client);
 
@@ -220,11 +218,10 @@ JSON
         $client->method('send')
             ->willReturn($response);
 
-
         $this->provider->setHttpClient($client);
 
         $this->expectException(IdentityProviderException::class);
-        $this->expectExceptionMessage("403 - error_name: This is the description");
+        $this->expectExceptionMessage('403 - error_name: This is the description');
         $this->provider->getAccessToken('authorization_code', ['code' => 'mock_authorization_code']);
     }
 
@@ -233,17 +230,16 @@ JSON
      */
     public function itShouldHandleEmptyErrors(): void
     {
-        $response = $this->createMockResponse("{}", 403);
+        $response = $this->createMockResponse('{}', 403);
 
         $client = $this->createMock(ClientInterface::class);
         $client->method('send')
             ->willReturn($response);
 
-
         $this->provider->setHttpClient($client);
 
         $this->expectException(IdentityProviderException::class);
-        $this->expectExceptionMessage("403 - : ");
+        $this->expectExceptionMessage('403 - : ');
         $this->provider->getAccessToken('authorization_code', ['code' => 'mock_authorization_code']);
     }
 }

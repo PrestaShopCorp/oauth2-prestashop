@@ -12,9 +12,9 @@ composer require prestashopcorp/oauth2-prestashop
 
 ```php
 $prestaShopProvider = new \PrestaShopCorp\OAuth2\Client\Provider\PrestaShop([
-    'clientId'                => 'yourClientId',          // The client ID assigned to you by PrestaShop
-    'clientSecret'            => 'yourClientSecret',      // The client password assigned to you by PrestaShop
-    'redirectUri'             => 'yourClientRedirectUri'  // The URL responding to the code flow implemented here
+    'clientId' => 'yourClientId', // The client ID assigned to you by PrestaShop
+    'clientSecret' => 'yourClientSecret', // The client password assigned to you by PrestaShop
+    'redirectUri' => 'yourClientRedirectUri' // The URL responding to the code flow implemented here
 ]);
 
 if (!empty($_GET['error'])) {
@@ -33,7 +33,9 @@ if (!empty($_GET['error'])) {
     exit;
 
 // Check given state against previously stored one to mitigate CSRF attack
-} elseif (empty($_GET['state']) || (isset($_SESSION['oauth2state']) && $_GET['state'] !== $_SESSION['oauth2state'])) {
+} elseif (empty($_GET['state']) || (isset($_SESSION['oauth2state']) 
+            && $_GET['state'] !== $_SESSION['oauth2state'])) {
+
     if (isset($_SESSION['oauth2state'])) {
         unset($_SESSION['oauth2state']);
     }

@@ -19,9 +19,9 @@ class PrestaShopUser implements ResourceOwnerInterface
     /**
      * Creates new resource owner.
      *
-     * @param array  $response
+     * @param array $response
      */
-    public function __construct(array $response = array())
+    public function __construct(array $response = [])
     {
         $this->response = $response;
     }

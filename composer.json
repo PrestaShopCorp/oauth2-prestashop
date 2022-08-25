@@ -3,7 +3,6 @@
     "description": "PrestaShop OAuth 2.0 support for the PHP League's OAuth 2.0 Client",
     "type": "library",
     "license": "MIT",
-    "author": "PrestaShop",
     "authors": [
         {
             "name": "PrestaShop SA",
@@ -25,7 +24,9 @@
         "league/oauth2-client": "^2.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.0 || ^9.0"
+        "phpunit/phpunit": "^8.0 || ^9.0",
+        "phpstan/phpstan": "^1.7",
+        "prestashop/php-dev-tools": "^4.2"
     },
     "autoload": {
         "psr-4": {
