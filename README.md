@@ -11,7 +11,7 @@ composer require prestashopcorp/oauth2-prestashop
 ## Usage
 
 ```php
-$prestaShopProvider = new \PrestaShopCorp\OAuth2\Client\Provider\PrestaShop([
+$prestaShopProvider = new \PrestaShop\OAuth2\Client\Provider\PrestaShop([
     'clientId' => 'yourClientId', // The client ID assigned to you by PrestaShop
     'clientSecret' => 'yourClientSecret', // The client password assigned to you by PrestaShop
     'redirectUri' => 'yourClientRedirectUri' // The URL responding to the code flow implemented here

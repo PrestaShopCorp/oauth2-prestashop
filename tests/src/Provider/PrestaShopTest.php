@@ -1,14 +1,14 @@
 <?php
 
-namespace PrestaShopCorp\OAuth2\Client\Test\Provider;
+namespace PrestaShop\OAuth2\Client\Test\Provider;
 
 use GuzzleHttp\ClientInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use PrestaShopCorp\OAuth2\Client\Provider\PrestaShop;
-use PrestaShopCorp\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\OAuth2\Client\Provider\PrestaShop;
+use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Psr\Http\Message\ResponseInterface;
 
 class PrestaShopTest extends TestCase

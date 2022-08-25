@@ -1,9 +1,9 @@
 <?php
 
-namespace PrestaShopCorp\OAuth2\Client\Test\Provider;
+namespace PrestaShop\OAuth2\Client\Test\Provider;
 
 use PHPUnit\Framework\TestCase;
-use PrestaShopCorp\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 
 class PrestaShopUserTest extends TestCase
 {
