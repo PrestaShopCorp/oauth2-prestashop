@@ -35,7 +35,7 @@ class PrestaShop extends AbstractProvider
      */
     public function getBaseAuthorizationUrl()
     {
-        return 'https://iam.prestashop.com/oauth2/auth';
+        return 'https://oauth.prestashop.com/oauth2/auth';
     }
 
     /**
@@ -45,7 +45,7 @@ class PrestaShop extends AbstractProvider
      */
     public function getBaseAccessTokenUrl(array $params)
     {
-        return 'https://iam.prestashop.com/oauth2/token';
+        return 'https://oauth.prestashop.com/oauth2/token';
     }
 
     /**
@@ -55,7 +55,7 @@ class PrestaShop extends AbstractProvider
      */
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
-        return 'https://iam.prestashop.com/userinfo';
+        return 'https://oauth.prestashop.com/userinfo';
     }
 
     /**
