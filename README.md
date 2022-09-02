@@ -10,7 +10,7 @@ This package provides PrestaShop OAuth 2.0 support for the PHP League's [OAuth 2
 
 [//]: # (```)
 
-Project is not yet published on Packagist, but you can still configure à repository in your composer.json:
+Project is not yet published on Packagist, but you can still configure a repository in your composer.json:
 
 ```json
 "repositories": [
