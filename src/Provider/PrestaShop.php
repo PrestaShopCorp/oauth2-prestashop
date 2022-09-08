@@ -90,12 +90,12 @@ class PrestaShop extends AbstractProvider
             $options['prompt'] = $this->prompt;
         }
 
-        if (empty($options['acr_values']) && $this->acrValues) {
-            $options['acr_values'] = $this->acrValues;
+        if (empty($options['acr_values']) && is_array($this->acrValues)) {
+            $options['acr_values'] = join(' ', $this->acrValues);
         }
 
-        if (empty($options['ui_locales']) && $this->uiLocales) {
-            $options['ui_locales'] = $this->uiLocales;
+        if (empty($options['ui_locales']) && is_array($this->uiLocales)) {
+            $options['ui_locales'] = join(' ', $this->uiLocales);
         }
 
         $options = parent::getAuthorizationParameters($options);
