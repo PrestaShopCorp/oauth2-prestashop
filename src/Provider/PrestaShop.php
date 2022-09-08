@@ -33,21 +33,21 @@ class PrestaShop extends AbstractProvider
     /**
      * @var string If set, will be sent as the "prompt" parameter
      *
-     * @link https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+     * @see https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
      */
     protected $prompt;
 
     /**
      * @var string[] If set, will be sent as the "acr_values" parameter
      *
-     * @link https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+     * @see https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
      */
     protected $acrValues;
 
     /**
      * @var string[] If set, will be sent as the "ui_locales" parameter. A space-separated list of BCP47 [RFC5646] language tag values, ordered by preference
      *
-     * @link https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+     * @see https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
      */
     protected $uiLocales;
 

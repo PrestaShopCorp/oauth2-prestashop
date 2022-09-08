@@ -27,7 +27,7 @@ Project is not yet published on Packagist, but you can still configure a reposit
 $prestaShopProvider = new \PrestaShop\OAuth2\Client\Provider\PrestaShop([
     'clientId' => 'yourClientId', // The client ID assigned to you by PrestaShop
     'clientSecret' => 'yourClientSecret', // The client password assigned to you by PrestaShop
-    'redirectUri' => 'yourClientRedirectUri' // The URL responding to the code flow implemented here
+    'redirectUri' => 'yourClientRedirectUri', // The URL responding to the code flow implemented here
     // Optional parameters
     'uiLocales' => ['fr-FR', 'en'],
     'acrValues' => ['prompt:create'], // In that specific case we change the default prompt to the "register" page
