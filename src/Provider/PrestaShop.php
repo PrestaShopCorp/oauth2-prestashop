@@ -31,6 +31,27 @@ class PrestaShop extends AbstractProvider
     use BearerAuthorizationTrait;
 
     /**
+     * @var string If set, will be sent as the "prompt" parameter
+     *
+     * @link https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+     */
+    protected $prompt;
+
+    /**
+     * @var string[] If set, will be sent as the "acr_values" parameter
+     *
+     * @link https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+     */
+    protected $acrValues;
+
+    /**
+     * @var string[] If set, will be sent as the "ui_locales" parameter. A space-separated list of BCP47 [RFC5646] language tag values, ordered by preference
+     *
+     * @link https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+     */
+    protected $uiLocales;
+
+    /**
      * @return string
      */
     public function getBaseAuthorizationUrl()
@@ -56,6 +77,30 @@ class PrestaShop extends AbstractProvider
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
         return 'https://oauth.prestashop.com/userinfo';
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return string[]
+     */
+    protected function getAuthorizationParameters(array $options)
+    {
+        if (empty($options['prompt']) && $this->prompt) {
+            $options['prompt'] = $this->prompt;
+        }
+
+        if (empty($options['acr_values']) && $this->acrValues) {
+            $options['acr_values'] = $this->acrValues;
+        }
+
+        if (empty($options['ui_locales']) && $this->uiLocales) {
+            $options['ui_locales'] = $this->uiLocales;
+        }
+
+        $options = parent::getAuthorizationParameters($options);
+
+        return $options;
     }
 
     /**
