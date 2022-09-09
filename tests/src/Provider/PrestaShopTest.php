@@ -23,7 +23,9 @@ class PrestaShopTest extends TestCase
         $this->provider = new PrestaShop([
             'clientId' => 'test-client',
             'clientSecret' => 'secret',
-            'redirectUri' => 'https://test-client-rediect.net',
+            'redirectUri' => 'https://test-client-redirect.net',
+            'uiLocales' => ['fr-CA', 'en'],
+            'acrValues' => ['prompt:login'],
         ]);
     }
 
@@ -65,7 +67,9 @@ class PrestaShopTest extends TestCase
 
         $this->assertEquals('openid offline_access', $query['scope']);
         $this->assertEquals('test-client', $query['client_id']);
-        $this->assertEquals('https://test-client-rediect.net', $query['redirect_uri']);
+        $this->assertEquals('https://test-client-redirect.net', $query['redirect_uri']);
+        $this->assertEquals('fr-CA en', $query['ui_locales']);
+        $this->assertEquals('prompt:login', $query['acr_values']);
         $this->assertArrayHasKey('response_type', $query);
     }
 
