@@ -5,9 +5,7 @@ This package provides PrestaShop OAuth 2.0 support for the PHP League's [OAuth 2
 ## Installation
 
 ```
-
 composer require prestashopcorp/oauth2-prestashop
-
 ```
 
 [//]: # (Project is not yet published on Packagist, but you can still configure a repository in your composer.json:)
