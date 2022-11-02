@@ -68,23 +68,32 @@ jobs:
   phpunit:
     name: PHPUnit
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions: ["7.2", "7.3", "8.0", "8.1"]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Setup PHP with Xdebug
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          coverage: xdebug
 
       - name: Cache vendor folder
         uses: actions/cache@v3
         with:
           path: vendor
-          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}-${{ matrix.php-versions }}
 
       - name: Cache composer folder
         uses: actions/cache@v3
         with:
           path: ~/.composer/cache
-          key: php-composer-cache
+          key: php-composer-cache-${{ matrix.php-versions }}
 
       - run: composer install
 
       - name: Run PHPUnit
-        run: XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-text
+        run: vendor/bin/phpunit --coverage-text
