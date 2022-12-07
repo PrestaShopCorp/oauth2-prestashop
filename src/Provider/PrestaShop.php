@@ -80,6 +80,48 @@ class PrestaShop extends AbstractProvider
     }
 
     /**
+     * @return string
+     */
+    public function getBaseSessionLogoutUrl()
+    {
+        return 'https://oauth.prestashop.com/sessions/logout';
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return string[]
+     */
+    protected function getLogoutParameters(array $options)
+    {
+        // TODO: implement method
+        return [];
+    }
+
+//    /**
+//     * Builds the session logout URL.
+//     *
+//     * @param  array $params
+//     * @return string Logout URL
+//     */
+//    public function getSessionLogoutUrl(array $params = []): string
+//    {
+//        $base   = $this->getBaseSessionLogoutUrl();
+//
+//        if (empty($params['id_token_hint'])) {
+//            $params['id_token_hint'] = $this->getSessionAccessToken()->getValues()['id_token'];
+//        }
+//
+//        if (empty($params['post_logout_redirect_uri'])) {
+//            $params['post_logout_redirect_uri'] = $this->getPostLogoutRedirectUri();
+//        }
+//
+//        $query = $this->buildQueryString($params);
+//
+//        return $this->appendQuery($base, $query);
+//    }
+
+    /**
      * @param array $options
      *
      * @return string[]
