@@ -37,5 +37,9 @@
         "psr-4": {
             "PrestaShop\\OAuth2\\Client\\Test\\": "tests/src/"
         }
+    },
+    "scripts": {
+        "phpunit": "./vendor/bin/phpunit --coverage-text",
+        "php-cs-fixer": "./vendor/bin/php-cs-fixer fix --config .php_cs.dist.php --diff"
     }
 }
