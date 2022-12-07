@@ -98,7 +98,7 @@ class PrestaShop extends AbstractProvider
      */
     public function getLogoutUrl(array $options = []): string
     {
-        $base   = $this->getBaseSessionLogoutUrl();
+        $base = $this->getBaseSessionLogoutUrl();
         $params = $this->getLogoutParameters($options);
         $query = $this->buildQueryString($params);
 
