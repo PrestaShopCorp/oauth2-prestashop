@@ -88,38 +88,22 @@ class PrestaShop extends AbstractProvider
     }
 
     /**
+     * Builds the session logout URL.
+     *
      * @param array $options
      *
-     * @return string[]
+     * @return string Logout URL
+     *
+     * @throws \Exception
      */
-    protected function getLogoutParameters(array $options)
+    public function getLogoutUrl(array $options = []): string
     {
-        // TODO: implement method
-        return [];
-    }
+        $base   = $this->getBaseSessionLogoutUrl();
+        $params = $this->getLogoutParameters($options);
+        $query = $this->buildQueryString($params);
 
-//    /**
-//     * Builds the session logout URL.
-//     *
-//     * @param  array $params
-//     * @return string Logout URL
-//     */
-//    public function getSessionLogoutUrl(array $params = []): string
-//    {
-//        $base   = $this->getBaseSessionLogoutUrl();
-//
-//        if (empty($params['id_token_hint'])) {
-//            $params['id_token_hint'] = $this->getSessionAccessToken()->getValues()['id_token'];
-//        }
-//
-//        if (empty($params['post_logout_redirect_uri'])) {
-//            $params['post_logout_redirect_uri'] = $this->getPostLogoutRedirectUri();
-//        }
-//
-//        $query = $this->buildQueryString($params);
-//
-//        return $this->appendQuery($base, $query);
-//    }
+        return $this->appendQuery($base, $query);
+    }
 
     /**
      * @param array $options
@@ -206,5 +190,27 @@ class PrestaShop extends AbstractProvider
         $resourceOwner = parent::getResourceOwner($token);
 
         return $resourceOwner;
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return string[]
+     *
+     * @throws \Exception
+     */
+    protected function getLogoutParameters(array $options)
+    {
+        if (empty($options['id_token_hint'])) {
+            // $options['id_token_hint'] = $this->getSessionAccessToken()->getValues()['id_token'];
+            throw new \Exception('Missing id_token_hint required parameter');
+        }
+
+        if (empty($options['post_logout_redirect_uri'])) {
+            // $options['post_logout_redirect_uri'] = $this->getPostLogoutRedirectUri();
+            throw new \Exception('Missing post_logout_redirect_uri required parameter');
+        }
+
+        return $options;
     }
 }
