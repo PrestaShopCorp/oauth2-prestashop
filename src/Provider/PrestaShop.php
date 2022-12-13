@@ -28,7 +28,7 @@ use Psr\Http\Message\ResponseInterface;
 
 class PrestaShop extends AbstractProvider
 {
-    use BearerAuthorizationTrait;
+    use BearerAuthorizationTrait, LogoutTrait;
 
     /**
      * @var string If set, will be sent as the "prompt" parameter
@@ -77,32 +77,6 @@ class PrestaShop extends AbstractProvider
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
         return 'https://oauth.prestashop.com/userinfo';
-    }
-
-    /**
-     * @return string
-     */
-    public function getBaseSessionLogoutUrl()
-    {
-        return 'https://oauth.prestashop.com/sessions/logout';
-    }
-
-    /**
-     * Builds the session logout URL.
-     *
-     * @param array $options
-     *
-     * @return string Logout URL
-     *
-     * @throws \Exception
-     */
-    public function getLogoutUrl(array $options = []): string
-    {
-        $base = $this->getBaseSessionLogoutUrl();
-        $params = $this->getLogoutParameters($options);
-        $query = $this->buildQueryString($params);
-
-        return $this->appendQuery($base, $query);
     }
 
     /**
@@ -190,27 +164,5 @@ class PrestaShop extends AbstractProvider
         $resourceOwner = parent::getResourceOwner($token);
 
         return $resourceOwner;
-    }
-
-    /**
-     * @param array $options
-     *
-     * @return string[]
-     *
-     * @throws \Exception
-     */
-    protected function getLogoutParameters(array $options)
-    {
-        if (empty($options['id_token_hint'])) {
-            // $options['id_token_hint'] = $this->getSessionAccessToken()->getValues()['id_token'];
-            throw new \Exception('Missing id_token_hint required parameter');
-        }
-
-        if (empty($options['post_logout_redirect_uri'])) {
-            // $options['post_logout_redirect_uri'] = $this->getPostLogoutRedirectUri();
-            throw new \Exception('Missing post_logout_redirect_uri required parameter');
-        }
-
-        return $options;
     }
 }
