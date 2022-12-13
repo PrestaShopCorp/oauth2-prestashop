@@ -28,7 +28,8 @@ use Psr\Http\Message\ResponseInterface;
 
 class PrestaShop extends AbstractProvider
 {
-    use BearerAuthorizationTrait, LogoutTrait;
+    use BearerAuthorizationTrait;
+    use LogoutTrait;
 
     /**
      * @var string If set, will be sent as the "prompt" parameter

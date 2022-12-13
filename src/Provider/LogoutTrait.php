@@ -55,7 +55,8 @@ trait LogoutTrait
     /**
      * Builds the logout URL's query string.
      *
-     * @param  array $params Query parameters
+     * @param array $params Query parameters
+     *
      * @return string Query string
      */
     protected function getLogoutQuery(array $params): string
