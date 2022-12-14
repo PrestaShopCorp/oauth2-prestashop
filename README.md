@@ -94,6 +94,35 @@ if (!empty($_GET['error'])) {
 
 For more information see the PHP League's general usage examples.
 
+## Logout flow 
+
+```php
+$prestaShopProvider = new \PrestaShop\OAuth2\Client\Provider\PrestaShop([
+    'clientId' => 'yourClientId', // The client ID assigned to you by PrestaShop
+    'clientSecret' => 'yourClientSecret', // The client password assigned to you by PrestaShop
+    'redirectUri' => 'yourClientRedirectUri', // The URL responding to the code flow implemented here
+    // Optional parameters
+    'uiLocales' => ['fr-FR', 'en'],
+    'acrValues' => ['prompt:create'], // In that specific case we change the default prompt to the "register" page
+]);
+
+if (isset($_GET['oauth2Callback')) {
+    // 
+    session_destroy();
+    
+} else {
+    /** @var \League\OAuth2\Client\Token\AccessToken $accessToken */
+    $accessToken = $_SESSION['accessToken'];
+
+    header('Location: ' . $prestaShopProvider->getLogoutUrl([
+        'id_token_hint' => $accessToken->getValues()['id_token'],
+        // Login url whitelisted among the ones defined with your client
+        'post_logout_redirect_uri' => 'https://logout-url/?oauth2Callback',
+    ]));
+    exit;
+}
+```
+
 ## Testing
 
 ``` bash
