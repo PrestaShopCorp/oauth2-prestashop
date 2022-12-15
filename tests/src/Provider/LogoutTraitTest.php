@@ -2,14 +2,8 @@
 
 namespace PrestaShop\OAuth2\Client\Test\Provider;
 
-use GuzzleHttp\ClientInterface;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use League\OAuth2\Client\Token\AccessToken;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
-use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
-use Psr\Http\Message\ResponseInterface;
 
 class LogoutTraitTest extends TestCase
 {
@@ -88,7 +82,7 @@ class LogoutTraitTest extends TestCase
             'clientId' => 'test-client',
             'clientSecret' => 'secret',
             'redirectUri' => 'https://test-client-redirect.net',
-            //'postLogoutCallbackUri' => 'https://test-client-redirect.net/logout?oauth2Callback',
+            // 'postLogoutCallbackUri' => 'https://test-client-redirect.net/logout?oauth2Callback',
             'uiLocales' => ['fr-CA', 'en'],
             'acrValues' => ['prompt:login'],
         ]);
@@ -133,7 +127,7 @@ class LogoutTraitTest extends TestCase
         $idToken = 'someRandomIdToken';
 
         $url = $this->provider->getLogoutUrl([
-            'id_token_hint' => $idToken
+            'id_token_hint' => $idToken,
         ]);
         $uri = parse_url($url);
 
@@ -155,7 +149,7 @@ class LogoutTraitTest extends TestCase
         $this->expectExceptionMessage('Missing id_token_hint required parameter');
 
         $this->provider->getLogoutUrl([
-            //'id_token_hint' => $idToken
+            // 'id_token_hint' => $idToken
         ]);
     }
 
@@ -170,7 +164,7 @@ class LogoutTraitTest extends TestCase
             'clientId' => 'test-client',
             'clientSecret' => 'secret',
             'redirectUri' => 'https://test-client-redirect.net',
-            //'postLogoutCallbackUri' => 'https://test-client-redirect.net/logout?oauth2Callback',
+            // 'postLogoutCallbackUri' => 'https://test-client-redirect.net/logout?oauth2Callback',
             'uiLocales' => ['fr-CA', 'en'],
             'acrValues' => ['prompt:login'],
         ]);
@@ -180,7 +174,7 @@ class LogoutTraitTest extends TestCase
         $this->expectExceptionMessage('Missing post_logout_redirect_uri required parameter');
 
         $this->provider->getLogoutUrl([
-            'id_token_hint' => $idToken
+            'id_token_hint' => $idToken,
         ]);
     }
 }
