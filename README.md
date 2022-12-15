@@ -114,20 +114,22 @@ $prestaShopProvider = new \PrestaShop\OAuth2\Client\Provider\PrestaShop([
 ]);
 
 if (isset($_GET['oauth2Callback')) {
-    // 
+    // your logout code
     session_destroy();
     
 } else {
     /** @var \League\OAuth2\Client\Token\AccessToken $accessToken */
     $accessToken = $_SESSION['accessToken'];
-
+    
     // The only required parameter is "id_token_int" here, 
     // you can optionally provide "post_logout_redirect_uri" to override the one from the constructor.
-    header('Location: ' . $prestaShopProvider->getLogoutUrl([
+    $logoutUrl = $prestaShopProvider->getLogoutUrl([
         'id_token_hint' => $accessToken->getValues()['id_token'],
         // (Optionnal here) Logout url whitelisted among the ones defined with your client
         // 'post_logout_redirect_uri' => 'https://my-logout-url/?oauth2Callback',
-    ]));
+    ]);
+
+    header('Location: ' . $logoutUrl);
     exit;
 }
 ```
