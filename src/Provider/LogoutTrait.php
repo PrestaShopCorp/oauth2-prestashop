@@ -5,9 +5,14 @@ namespace PrestaShop\OAuth2\Client\Provider;
 trait LogoutTrait
 {
     /**
+     * @var string
+     */
+    protected $postLogoutCallbackUri;
+
+    /**
      * @return string
      */
-    public function getBaseSessionLogoutUrl()
+    public function getBaseSessionLogoutUrl(): string
     {
         return 'https://oauth.prestashop.com/sessions/logout';
     }
@@ -45,8 +50,11 @@ trait LogoutTrait
         }
 
         if (empty($options['post_logout_redirect_uri'])) {
-            // $options['post_logout_redirect_uri'] = $this->getPostLogoutRedirectUri();
-            throw new \Exception('Missing post_logout_redirect_uri required parameter');
+            if (! empty($this->postLogoutCallbackUri)) {
+                $options['post_logout_redirect_uri'] = $this->postLogoutCallbackUri;
+            } else {
+                throw new \Exception('Missing post_logout_redirect_uri required parameter');
+            }
         }
 
         return $options;
