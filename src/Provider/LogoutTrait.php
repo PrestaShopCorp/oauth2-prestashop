@@ -50,7 +50,7 @@ trait LogoutTrait
         }
 
         if (empty($options['post_logout_redirect_uri'])) {
-            if (! empty($this->postLogoutCallbackUri)) {
+            if (!empty($this->postLogoutCallbackUri)) {
                 $options['post_logout_redirect_uri'] = $this->postLogoutCallbackUri;
             } else {
                 throw new \Exception('Missing post_logout_redirect_uri required parameter');
