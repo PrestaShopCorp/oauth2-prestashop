@@ -29,6 +29,7 @@ use Psr\Http\Message\ResponseInterface;
 class PrestaShop extends AbstractProvider
 {
     use BearerAuthorizationTrait;
+    use LogoutTrait;
 
     /**
      * @var string If set, will be sent as the "prompt" parameter
@@ -54,7 +55,7 @@ class PrestaShop extends AbstractProvider
     /**
      * @return string
      */
-    public function getBaseAuthorizationUrl()
+    public function getBaseAuthorizationUrl(): string
     {
         return 'https://oauth.prestashop.com/oauth2/auth';
     }
@@ -64,7 +65,7 @@ class PrestaShop extends AbstractProvider
      *
      * @return string
      */
-    public function getBaseAccessTokenUrl(array $params)
+    public function getBaseAccessTokenUrl(array $params): string
     {
         return 'https://oauth.prestashop.com/oauth2/token';
     }
@@ -74,7 +75,7 @@ class PrestaShop extends AbstractProvider
      *
      * @return string
      */
-    public function getResourceOwnerDetailsUrl(AccessToken $token)
+    public function getResourceOwnerDetailsUrl(AccessToken $token): string
     {
         return 'https://oauth.prestashop.com/userinfo';
     }
@@ -84,7 +85,7 @@ class PrestaShop extends AbstractProvider
      *
      * @return string[]
      */
-    protected function getAuthorizationParameters(array $options)
+    protected function getAuthorizationParameters(array $options): array
     {
         if (empty($options['prompt']) && $this->prompt) {
             $options['prompt'] = $this->prompt;
@@ -106,7 +107,7 @@ class PrestaShop extends AbstractProvider
     /**
      * @return string[]
      */
-    public function getDefaultScopes()
+    public function getDefaultScopes(): array
     {
         return ['openid', 'offline_access'];
     }
