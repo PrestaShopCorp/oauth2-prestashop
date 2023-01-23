@@ -136,7 +136,7 @@ class LogoutTraitTest extends TestCase
             $path = $uri['path'];
         }
 
-        $this->assertEquals('/sessions/logout', $path);
+        $this->assertEquals('/oauth2/sessions/logout', $path);
     }
 
     /**
