@@ -14,7 +14,7 @@ trait LogoutTrait
      */
     public function getBaseSessionLogoutUrl(): string
     {
-        return 'https://oauth.prestashop.com/sessions/logout';
+        return 'https://oauth.prestashop.com/oauth2/sessions/logout';
     }
 
     /**
