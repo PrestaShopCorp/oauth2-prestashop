@@ -94,6 +94,46 @@ if (!empty($_GET['error'])) {
 
 For more information see the PHP League's general usage examples.
 
+## Logout flow 
+
+Going beyond the scope of this library we provide a helper function `getLogoutUrl` to logout from your oauth2 session.
+
+The only required parameter is `id_token_int` here, you can optionally provide `post_logout_redirect_uri` to override the one from the constructor.
+
+Also don't forget to provide `postLogoutCallbackUri` at construction time if you plan to use it.
+
+```php
+$prestaShopProvider = new \PrestaShop\OAuth2\Client\Provider\PrestaShop([
+    'clientId' => 'yourClientId', // The client ID assigned to you by PrestaShop
+    'clientSecret' => 'yourClientSecret', // The client password assigned to you by PrestaShop
+    'redirectUri' => 'yourClientRedirectUri', // The URL responding to the code flow implemented here
+    'postLogoutCallbackUri' => 'yourLogoutCallbackUri', // Logout url whitelisted among the ones defined with your client
+    // Optional parameters
+    'uiLocales' => ['fr-FR', 'en'],
+    'acrValues' => ['prompt:create'], // In that specific case we change the default prompt to the "register" page
+]);
+
+if (isset($_GET['oauth2Callback')) {
+    // your logout code
+    session_destroy();
+    
+} else {
+    /** @var \League\OAuth2\Client\Token\AccessToken $accessToken */
+    $accessToken = $_SESSION['accessToken'];
+    
+    // The only required parameter is "id_token_int" here, 
+    // you can optionally provide "post_logout_redirect_uri" to override the one from the constructor.
+    $logoutUrl = $prestaShopProvider->getLogoutUrl([
+        'id_token_hint' => $accessToken->getValues()['id_token'],
+        // (Optionnal here) Logout url whitelisted among the ones defined with your client
+        // 'post_logout_redirect_uri' => 'https://my-logout-url/?oauth2Callback',
+    ]);
+
+    header('Location: ' . $logoutUrl);
+    exit;
+}
+```
+
 ## Testing
 
 ``` bash
