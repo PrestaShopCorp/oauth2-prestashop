@@ -12,7 +12,7 @@ trait LogoutTrait
     /**
      * @return string
      */
-    public function getBaseSessionLogoutUrl(): string
+    public function getBaseSessionLogoutUrl()
     {
         return 'https://oauth.prestashop.com/oauth2/sessions/logout';
     }
@@ -26,7 +26,7 @@ trait LogoutTrait
      *
      * @throws \Exception
      */
-    public function getLogoutUrl(array $options = []): string
+    public function getLogoutUrl(array $options = [])
     {
         $base = $this->getBaseSessionLogoutUrl();
         $params = $this->getLogoutParameters($options);
@@ -42,7 +42,7 @@ trait LogoutTrait
      *
      * @throws \Exception
      */
-    protected function getLogoutParameters(array $options): array
+    protected function getLogoutParameters(array $options)
     {
         if (empty($options['id_token_hint'])) {
             // $options['id_token_hint'] = $this->getSessionAccessToken()->getValues()['id_token'];
@@ -67,7 +67,7 @@ trait LogoutTrait
      *
      * @return string Query string
      */
-    protected function getLogoutQuery(array $params): string
+    protected function getLogoutQuery(array $params)
     {
         return $this->buildQueryString($params);
     }
