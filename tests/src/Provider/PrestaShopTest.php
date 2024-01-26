@@ -21,7 +21,7 @@ class PrestaShopTest extends TestCase
     /**
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->provider = new PrestaShop([
             'clientId' => 'test-client',

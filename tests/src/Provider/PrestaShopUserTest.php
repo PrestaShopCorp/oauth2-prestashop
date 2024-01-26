@@ -40,7 +40,7 @@ class PrestaShopUserTest extends TestCase
     /**
      * @return void
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->user = new PrestaShopUser([
             'email' => 'john.doe@prestashop.com',
