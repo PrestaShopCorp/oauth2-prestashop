@@ -146,7 +146,7 @@ class WellKnown
      * @param string $url
      * @param bool $secure
      *
-     * @return void
+     * @return WellKnown
      *
      * @throws \Exception
      */
@@ -166,5 +166,7 @@ class WellKnown
                 'ignore_errors' => '1',
             ],
         ])), true) ?: []);
+
+        return $this;
     }
 }
