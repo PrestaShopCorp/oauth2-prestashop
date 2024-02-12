@@ -14,7 +14,7 @@ trait LogoutTrait
      */
     public function getBaseSessionLogoutUrl()
     {
-        return 'https://oauth.prestashop.com/oauth2/sessions/logout';
+        return $this->wellKnown->end_session_endpoint;
     }
 
     /**

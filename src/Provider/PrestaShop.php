@@ -53,11 +53,38 @@ class PrestaShop extends AbstractProvider
     protected $uiLocales;
 
     /**
+     * @var WellKnown
+     */
+    protected $wellKnown;
+
+    /**
+     * @param array $options
+     *
+     * @param array $collaborators
+     *
+     * @throws \Exception
+     */
+    public function __construct(array $options = [], array $collaborators = [])
+    {
+        parent::__construct($options, $collaborators);
+
+        $this->wellKnown = new WellKnown($this->getOauth2Url(), $options['verify']);
+    }
+
+    /**
+     * @return string
+     */
+    public function getOauth2Url()
+    {
+        return 'https://oauth.prestashop.com';
+    }
+
+    /**
      * @return string
      */
     public function getBaseAuthorizationUrl()
     {
-        return 'https://oauth.prestashop.com/oauth2/auth';
+        return $this->wellKnown->authorization_endpoint;
     }
 
     /**
@@ -67,7 +94,7 @@ class PrestaShop extends AbstractProvider
      */
     public function getBaseAccessTokenUrl(array $params)
     {
-        return 'https://oauth.prestashop.com/oauth2/token';
+        return $this->wellKnown->token_endpoint;
     }
 
     /**
@@ -77,7 +104,7 @@ class PrestaShop extends AbstractProvider
      */
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
-        return 'https://oauth.prestashop.com/userinfo';
+        return $this->wellKnown->userinfo_endpoint;
     }
 
     /**
