@@ -125,12 +125,12 @@ class WellKnown
      *
      * @throws \Exception
      */
-    public function __construct($infos = [])
+    public function __construct($infos = [], $secure = true)
     {
         if (is_array($infos)) {
             $this->init($infos);
         } else {
-            $this->fetch($infos);
+            $this->fetch($infos, $secure);
         }
     }
 
