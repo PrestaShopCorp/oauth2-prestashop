@@ -58,6 +58,11 @@ class PrestaShop extends AbstractProvider
     protected $wellKnown;
 
     /**
+     * @var bool
+     */
+    protected $verify = true;
+
+    /**
      * @param array $options
      *
      * @param array $collaborators
@@ -67,8 +72,6 @@ class PrestaShop extends AbstractProvider
     public function __construct(array $options = [], array $collaborators = [])
     {
         parent::__construct($options, $collaborators);
-
-        $this->wellKnown = new WellKnown($this->getOauth2Url(), $options['verify']);
     }
 
     /**
@@ -80,11 +83,26 @@ class PrestaShop extends AbstractProvider
     }
 
     /**
+     * @return WellKnown
+     */
+    public function getWellKnown()
+    {
+        if (! $this->wellKnown) {
+            try {
+                $this->wellKnown = new WellKnown($this->getOauth2Url(), $this->verify);
+            } catch (\Exception $e) {
+                $this->wellKnown = new WellKnown();
+            }
+        }
+        return $this->wellKnown;
+    }
+
+    /**
      * @return string
      */
     public function getBaseAuthorizationUrl()
     {
-        return $this->wellKnown->authorization_endpoint;
+        return $this->getWellKnown()->authorization_endpoint;
     }
 
     /**
@@ -94,7 +112,7 @@ class PrestaShop extends AbstractProvider
      */
     public function getBaseAccessTokenUrl(array $params)
     {
-        return $this->wellKnown->token_endpoint;
+        return $this->getWellKnown()->token_endpoint;
     }
 
     /**
@@ -104,7 +122,7 @@ class PrestaShop extends AbstractProvider
      */
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
-        return $this->wellKnown->userinfo_endpoint;
+        return $this->getWellKnown()->userinfo_endpoint;
     }
 
     /**

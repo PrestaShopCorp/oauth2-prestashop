@@ -14,7 +14,7 @@ trait LogoutTrait
      */
     public function getBaseSessionLogoutUrl()
     {
-        return $this->wellKnown->end_session_endpoint;
+        return $this->getWellKnown()->end_session_endpoint;
     }
 
     /**
