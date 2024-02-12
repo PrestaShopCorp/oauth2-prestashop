@@ -121,11 +121,17 @@ class WellKnown
     public $code_challenge_methods_supported;
 
     /**
-     * @param array $infos
+     * @param array|string $infos Url or Properties
+     *
+     * @throws \Exception
      */
-    public function __construct(array $infos = [])
+    public function __construct($infos = [])
     {
-        $this->init($infos);
+        if (is_array($infos)) {
+            $this->init($infos);
+        } else {
+            $this->fetch($infos);
+        }
     }
 
     /**
@@ -133,7 +139,7 @@ class WellKnown
      *
      * @return void
      */
-    public function init(array $infos)
+    public function init($infos)
     {
         foreach ($infos as $key => $value) {
             if (property_exists($this, $key)) {
