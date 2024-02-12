@@ -123,7 +123,17 @@ class WellKnown
     /**
      * @param array $infos
      */
-    public function __construct($infos)
+    public function __construct(array $infos = [])
+    {
+        $this->init($infos);
+    }
+
+    /**
+     * @param array $infos
+     *
+     * @return void
+     */
+    public function init(array $infos)
     {
         foreach ($infos as $key => $value) {
             if (property_exists($this, $key)) {
@@ -136,18 +146,18 @@ class WellKnown
      * @param string $url
      * @param bool $secure
      *
-     * @return WellKnown
+     * @return void
      *
      * @throws \Exception
      */
-    public static function fetch($url, $secure = true)
+    public function fetch($url, $secure = true)
     {
         $wellKnownUrl = $url;
         if (strpos($wellKnownUrl, '/.well-known') === false) {
             $wellKnownUrl = preg_replace('/\/?$/', '/.well-known/openid-configuration', $wellKnownUrl);
         }
 
-        return new WellKnown(json_decode(file_get_contents($wellKnownUrl, false, stream_context_create([
+        $this->init(json_decode(file_get_contents($wellKnownUrl, false, stream_context_create([
             'ssl' => [
                 'verify_peer' => $secure,
                 'verify_peer_name' => $secure,
