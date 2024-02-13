@@ -90,7 +90,10 @@ class PrestaShop extends AbstractProvider
         if (! $this->wellKnown) {
             try {
                 $this->wellKnown = new WellKnown($this->getOauth2Url(), $this->verify);
+            } catch (\Error $e) {
             } catch (\Exception $e) {
+            }
+            if (isset($e)) {
                 $this->wellKnown = new WellKnown();
             }
         }
