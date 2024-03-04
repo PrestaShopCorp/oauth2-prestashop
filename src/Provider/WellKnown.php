@@ -130,7 +130,7 @@ class WellKnown
         if (is_array($infos)) {
             $this->init($infos);
         } else {
-            $this->fetch($infos, $secure);
+            $this->init($this->fetch($infos, $secure));
         }
     }
 
@@ -152,7 +152,7 @@ class WellKnown
      * @param string $url
      * @param bool $secure
      *
-     * @return WellKnown
+     * @return array
      *
      * @throws \Exception
      */
@@ -163,7 +163,7 @@ class WellKnown
             $wellKnownUrl = preg_replace('/\/?$/', '/.well-known/openid-configuration', $wellKnownUrl);
         }
 
-        $this->init(json_decode(file_get_contents($wellKnownUrl, false, stream_context_create([
+        return json_decode(file_get_contents($wellKnownUrl, false, stream_context_create([
             'ssl' => [
                 'verify_peer' => $secure,
                 'verify_peer_name' => $secure,
@@ -171,8 +171,6 @@ class WellKnown
             'http' => [
                 'ignore_errors' => '1',
             ],
-        ])), true) ?: []);
-
-        return $this;
+        ])), true) ?: [];
     }
 }
