@@ -122,6 +122,7 @@ class WellKnown
 
     /**
      * @param array|string $infos Url or Properties
+     * @param bool $secure
      *
      * @throws \Exception
      */

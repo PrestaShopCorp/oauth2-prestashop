@@ -64,7 +64,6 @@ class PrestaShop extends AbstractProvider
 
     /**
      * @param array $options
-     *
      * @param array $collaborators
      *
      * @throws \Exception
@@ -87,7 +86,7 @@ class PrestaShop extends AbstractProvider
      */
     public function getWellKnown()
     {
-        if (! $this->wellKnown) {
+        if (!isset($this->wellKnown)) {
             try {
                 $this->wellKnown = new WellKnown($this->getOauth2Url(), $this->verify);
             } catch (\Error $e) {
@@ -97,6 +96,7 @@ class PrestaShop extends AbstractProvider
                 $this->wellKnown = new WellKnown();
             }
         }
+
         return $this->wellKnown;
     }
 
