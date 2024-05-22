@@ -89,7 +89,9 @@ class PrestaShop extends AbstractProvider
         /* @phpstan-ignore-next-line */
         if (!isset($this->wellKnown)) {
             try {
-                $this->wellKnown = new WellKnown($this->getOauth2Url(), $this->verify);
+                $this->wellKnown = new WellKnown(
+                    $this->fetchWellKnown($this->getOauth2Url(), $this->verify)
+                );
             } catch (\Error $e) {
             } catch (\Exception $e) {
             }
@@ -99,6 +101,26 @@ class PrestaShop extends AbstractProvider
         }
 
         return $this->wellKnown;
+    }
+
+    /**
+     * @param string $url
+     * @param bool $secure
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    protected function fetchWellKnown($url, $secure = true)
+    {
+        $wellKnownUrl = $url;
+        if (strpos($wellKnownUrl, '/.well-known') === false) {
+            $wellKnownUrl = preg_replace('/\/?$/', '/.well-known/openid-configuration', $wellKnownUrl);
+        }
+
+        $response = $this->getResponse($this->getRequest('GET', $wellKnownUrl));
+
+        return json_decode($response->getBody(), true);
     }
 
     /**
