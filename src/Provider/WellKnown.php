@@ -122,11 +122,8 @@ class WellKnown
 
     /**
      * @param array $infos WellKnown data
-     * @param bool $secure
-     *
-     * @throws \Exception
      */
-    public function __construct(array $infos = [], $secure = true)
+    public function __construct(array $infos = [])
     {
         $this->init($infos);
     }

@@ -9,6 +9,7 @@ use League\OAuth2\Client\Token\AccessToken;
 use PHPUnit\Framework\TestCase;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\OAuth2\Client\Provider\WellKnown;
 use Psr\Http\Message\ResponseInterface;
 
 class PrestaShopTest extends TestCase
@@ -23,13 +24,25 @@ class PrestaShopTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->provider = new PrestaShop([
+        $this->provider = $this->getMockBuilder(PrestaShop::class)
+            ->setConstructorArgs([[
             'clientId' => 'test-client',
             'clientSecret' => 'secret',
             'redirectUri' => 'https://test-client-redirect.net',
             'uiLocales' => ['fr-CA', 'en'],
             'acrValues' => ['prompt:login'],
-        ]);
+        ]])
+            ->setMethods(['getWellKnown'])
+            ->getMock();
+
+        $oauthUrl = 'https://oauth.foo.bar';
+
+        $this->provider->method('getWellKnown')
+            ->willReturn(new WellKnown([
+                'authorization_endpoint' => $oauthUrl . '/oauth2/auth',
+                'token_endpoint' => $oauthUrl . '/oauth2/token',
+                'userinfo_endpoint' => $oauthUrl . '/userinfo',
+            ]));
     }
 
     /**
