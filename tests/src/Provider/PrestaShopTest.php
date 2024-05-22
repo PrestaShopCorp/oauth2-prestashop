@@ -26,12 +26,12 @@ class PrestaShopTest extends TestCase
     {
         $this->provider = $this->getMockBuilder(PrestaShop::class)
             ->setConstructorArgs([[
-            'clientId' => 'test-client',
-            'clientSecret' => 'secret',
-            'redirectUri' => 'https://test-client-redirect.net',
-            'uiLocales' => ['fr-CA', 'en'],
-            'acrValues' => ['prompt:login'],
-        ]])
+                'clientId' => 'test-client',
+                'clientSecret' => 'secret',
+                'redirectUri' => 'https://test-client-redirect.net',
+                'uiLocales' => ['fr-CA', 'en'],
+                'acrValues' => ['prompt:login'],
+            ]])
             ->setMethods(['getWellKnown'])
             ->getMock();
 
