@@ -37,6 +37,9 @@ class PrestaShopUserTest extends TestCase
     )
     */
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
         $this->user = new PrestaShopUser([
@@ -51,7 +54,7 @@ class PrestaShopUserTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGetId(): void
+    public function itShouldGetId()
     {
         $this->assertEquals('4rFN5bm2piPeHTYUFtUIwcyFKKKOp', $this->user->getId());
     }
@@ -59,7 +62,7 @@ class PrestaShopUserTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGetEmail(): void
+    public function itShouldGetEmail()
     {
         $this->assertEquals('john.doe@prestashop.com', $this->user->getEmail());
     }
@@ -67,7 +70,7 @@ class PrestaShopUserTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGetEmailVerified(): void
+    public function itShouldGetEmailVerified()
     {
         $this->assertEquals(1, $this->user->getEmailVerified());
     }
@@ -75,7 +78,7 @@ class PrestaShopUserTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGetName(): void
+    public function itShouldGetName()
     {
         $this->assertEquals('John Doe', $this->user->getName());
     }
@@ -83,7 +86,7 @@ class PrestaShopUserTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGetPicture(): void
+    public function itShouldGetPicture()
     {
         $this->assertEquals('https://lh3.googleusercontent.com/a/AATXAJzK3D_K4_7YHFDQHFD3C_1ViDfRVDmQTukCyw=s96-c', $this->user->getPicture());
     }

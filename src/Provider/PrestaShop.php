@@ -53,11 +53,82 @@ class PrestaShop extends AbstractProvider
     protected $uiLocales;
 
     /**
+     * @var WellKnown
+     */
+    protected $wellKnown;
+
+    /**
+     * @var bool
+     */
+    protected $verify = true;
+
+    /**
+     * @param array $options
+     * @param array $collaborators
+     *
+     * @throws \Exception
+     */
+    public function __construct(array $options = [], array $collaborators = [])
+    {
+        parent::__construct($options, $collaborators);
+    }
+
+    /**
      * @return string
      */
-    public function getBaseAuthorizationUrl(): string
+    public function getOauth2Url()
     {
-        return 'https://oauth.prestashop.com/oauth2/auth';
+        return 'https://oauth.prestashop.com';
+    }
+
+    /**
+     * @return WellKnown
+     */
+    public function getWellKnown()
+    {
+        /* @phpstan-ignore-next-line */
+        if (!isset($this->wellKnown)) {
+            try {
+                $this->wellKnown = new WellKnown(
+                    $this->fetchWellKnown($this->getOauth2Url(), $this->verify)
+                );
+            } catch (\Error $e) {
+            } catch (\Exception $e) {
+            }
+            if (isset($e)) {
+                $this->wellKnown = new WellKnown();
+            }
+        }
+
+        return $this->wellKnown;
+    }
+
+    /**
+     * @param string $url
+     * @param bool $secure
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    protected function fetchWellKnown($url, $secure = true)
+    {
+        $wellKnownUrl = $url;
+        if (strpos($wellKnownUrl, '/.well-known') === false) {
+            $wellKnownUrl = preg_replace('/\/?$/', '/.well-known/openid-configuration', $wellKnownUrl);
+        }
+
+        $response = $this->getResponse($this->getRequest('GET', $wellKnownUrl));
+
+        return json_decode($response->getBody(), true);
+    }
+
+    /**
+     * @return string
+     */
+    public function getBaseAuthorizationUrl()
+    {
+        return $this->getWellKnown()->authorization_endpoint;
     }
 
     /**
@@ -65,9 +136,9 @@ class PrestaShop extends AbstractProvider
      *
      * @return string
      */
-    public function getBaseAccessTokenUrl(array $params): string
+    public function getBaseAccessTokenUrl(array $params)
     {
-        return 'https://oauth.prestashop.com/oauth2/token';
+        return $this->getWellKnown()->token_endpoint;
     }
 
     /**
@@ -75,9 +146,9 @@ class PrestaShop extends AbstractProvider
      *
      * @return string
      */
-    public function getResourceOwnerDetailsUrl(AccessToken $token): string
+    public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
-        return 'https://oauth.prestashop.com/userinfo';
+        return $this->getWellKnown()->userinfo_endpoint;
     }
 
     /**
@@ -85,7 +156,7 @@ class PrestaShop extends AbstractProvider
      *
      * @return string[]
      */
-    protected function getAuthorizationParameters(array $options): array
+    protected function getAuthorizationParameters(array $options)
     {
         if (empty($options['prompt']) && $this->prompt) {
             $options['prompt'] = $this->prompt;
@@ -107,7 +178,7 @@ class PrestaShop extends AbstractProvider
     /**
      * @return string[]
      */
-    public function getDefaultScopes(): array
+    public function getDefaultScopes()
     {
         return ['openid', 'offline_access'];
     }
@@ -115,7 +186,7 @@ class PrestaShop extends AbstractProvider
     /**
      * @return string
      */
-    protected function getScopeSeparator(): string
+    protected function getScopeSeparator()
     {
         return ' ';
     }
@@ -128,13 +199,13 @@ class PrestaShop extends AbstractProvider
      *
      * @throws IdentityProviderException
      */
-    protected function checkResponse(ResponseInterface $response, $data): void
+    protected function checkResponse(ResponseInterface $response, $data)
     {
         if ($response->getStatusCode() !== 200) {
             $errorDescription = '';
             $error = '';
             if (\is_array($data) && !empty($data)) {
-                $errorDescription = $data['error_description'] ?? $data['message'];
+                $errorDescription = isset($data['error_description']) ? $data['error_description'] : $data['message'];
                 $error = $data['error'];
             }
             throw new IdentityProviderException(sprintf('%d - %s: %s', $response->getStatusCode(), $error, $errorDescription), $response->getStatusCode(), $data);
@@ -147,7 +218,7 @@ class PrestaShop extends AbstractProvider
      *
      * @return PrestaShopUser
      */
-    protected function createResourceOwner(array $response, AccessToken $token): PrestaShopUser
+    protected function createResourceOwner(array $response, AccessToken $token)
     {
         return new PrestaShopUser($response);
     }
@@ -159,7 +230,7 @@ class PrestaShop extends AbstractProvider
      *
      * @return PrestaShopUser
      */
-    public function getResourceOwner(AccessToken $token): PrestaShopUser
+    public function getResourceOwner(AccessToken $token)
     {
         /** @var PrestaShopUser $resourceOwner */
         $resourceOwner = parent::getResourceOwner($token);

@@ -12,6 +12,9 @@ class LogoutTraitTest extends TestCase
      */
     private $provider;
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
         $this->provider = new PrestaShop([
@@ -27,7 +30,7 @@ class LogoutTraitTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGenerateLogoutUrl(): void
+    public function itShouldGenerateLogoutUrl()
     {
         $idToken = 'someRandomIdToken';
 
@@ -49,7 +52,7 @@ class LogoutTraitTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGenerateLogoutUrlWithOptionalParameters(): void
+    public function itShouldGenerateLogoutUrlWithOptionalParameters()
     {
         $idToken = 'someRandomIdToken';
         $postLogoutRedirectUri = 'https://overriden-post-logout-uri.net';
@@ -73,7 +76,7 @@ class LogoutTraitTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGenerateLogoutUrlWithOptionalOnlyParameters(): void
+    public function itShouldGenerateLogoutUrlWithOptionalOnlyParameters()
     {
         $idToken = 'someRandomIdToken';
         $postLogoutRedirectUri = 'https://overriden-post-logout-uri.net';
@@ -106,7 +109,7 @@ class LogoutTraitTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGetBaseSessionLogoutUrl(): void
+    public function itShouldGetBaseSessionLogoutUrl()
     {
         $url = $this->provider->getBaseSessionLogoutUrl();
         $uri = parse_url($url);
@@ -122,7 +125,7 @@ class LogoutTraitTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGetLogoutUrl(): void
+    public function itShouldGetLogoutUrl()
     {
         $idToken = 'someRandomIdToken';
 
@@ -142,7 +145,7 @@ class LogoutTraitTest extends TestCase
     /**
      * @test
      */
-    public function itShouldThrowExceptionWhenIdTokenIsMissing(): void
+    public function itShouldThrowExceptionWhenIdTokenIsMissing()
     {
         $this->expectException(\Exception::class);
 
@@ -156,7 +159,7 @@ class LogoutTraitTest extends TestCase
     /**
      * @test
      */
-    public function itShouldThrowExceptionWhenPostLogoutCallbackUriIsMissing(): void
+    public function itShouldThrowExceptionWhenPostLogoutCallbackUriIsMissing()
     {
         $idToken = 'someRandomIdToken';
 

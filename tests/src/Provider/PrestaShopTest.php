@@ -3,12 +3,13 @@
 namespace PrestaShop\OAuth2\Client\Test\Provider;
 
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Psr7\Utils;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\OAuth2\Client\Provider\WellKnown;
 use Psr\Http\Message\ResponseInterface;
 
 class PrestaShopTest extends TestCase
@@ -18,24 +19,39 @@ class PrestaShopTest extends TestCase
      */
     private $provider;
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
-        $this->provider = new PrestaShop([
-            'clientId' => 'test-client',
-            'clientSecret' => 'secret',
-            'redirectUri' => 'https://test-client-redirect.net',
-            'uiLocales' => ['fr-CA', 'en'],
-            'acrValues' => ['prompt:login'],
-        ]);
+        $this->provider = $this->getMockBuilder(PrestaShop::class)
+            ->setConstructorArgs([[
+                'clientId' => 'test-client',
+                'clientSecret' => 'secret',
+                'redirectUri' => 'https://test-client-redirect.net',
+                'uiLocales' => ['fr-CA', 'en'],
+                'acrValues' => ['prompt:login'],
+            ]])
+            ->setMethods(['getWellKnown'])
+            ->getMock();
+
+        $oauthUrl = 'https://oauth.foo.bar';
+
+        $this->provider->method('getWellKnown')
+            ->willReturn(new WellKnown([
+                'authorization_endpoint' => $oauthUrl . '/oauth2/auth',
+                'token_endpoint' => $oauthUrl . '/oauth2/token',
+                'userinfo_endpoint' => $oauthUrl . '/userinfo',
+            ]));
     }
 
     /**
-     * @param string $responseBody
-     * @param int $statusCode
+     * @param $responseBody
+     * @param $statusCode
      *
-     * @return MockObject
+     * @return \PHPUnit_Framework_MockObject_MockObject|ResponseInterface|(ResponseInterface&\PHPUnit_Framework_MockObject_MockObject)
      */
-    private function createMockResponse(string $responseBody, int $statusCode = 200): MockObject
+    private function createMockResponse($responseBody, $statusCode = 200)
     {
         $response = $this->createMock(ResponseInterface::class);
 
@@ -43,11 +59,11 @@ class PrestaShopTest extends TestCase
             ->willReturn($statusCode);
 
         $response->method('getBody')
-            ->willReturn($responseBody);
+            ->willReturn(Utils::streamFor($responseBody));
 
         $response->method('getHeader')
             ->with('content-type')
-            ->willReturn('application/json');
+            ->willReturn(['application/json']);
 
         return $response;
     }
@@ -55,7 +71,7 @@ class PrestaShopTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGenerateAuthorizationUrl(): void
+    public function itShouldGenerateAuthorizationUrl()
     {
         $url = $this->provider->getAuthorizationUrl();
         $uri = parse_url($url);
@@ -76,7 +92,7 @@ class PrestaShopTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGetBaseAccessTokenUrl(): void
+    public function itShouldGetBaseAccessTokenUrl()
     {
         $params = [];
 
@@ -94,7 +110,7 @@ class PrestaShopTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGetAuthorizationUrl(): void
+    public function itShouldGetAuthorizationUrl()
     {
         $url = $this->provider->getAuthorizationUrl();
         $uri = parse_url($url);
@@ -110,7 +126,7 @@ class PrestaShopTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGetAccessTokenWithAuthorizationCode(): void
+    public function itShouldGetAccessTokenWithAuthorizationCode()
     {
         $response = $this->createMockResponse(<<<JSON
 {
@@ -141,7 +157,7 @@ JSON
     /**
      * @test
      */
-    public function itShouldGetAccessTokenWithClientCredentials(): void
+    public function itShouldGetAccessTokenWithClientCredentials()
     {
         $response = $this->createMockResponse(<<<JSON
 {
@@ -171,7 +187,7 @@ JSON
     /**
      * @test
      */
-    public function itShouldGetResourceOwner(): void
+    public function itShouldGetResourceOwner()
     {
         $response = $this->createMockResponse(<<<JSON
 {
@@ -208,7 +224,7 @@ JSON
     /**
      * @test
      */
-    public function itShouldHandleErrors(): void
+    public function itShouldHandleErrors()
     {
         $response = $this->createMockResponse(<<<JSON
 {
@@ -232,7 +248,7 @@ JSON
     /**
      * @test
      */
-    public function itShouldHandleEmptyErrors(): void
+    public function itShouldHandleEmptyErrors()
     {
         $response = $this->createMockResponse('{}', 403);
 
