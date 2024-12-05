@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -94,8 +95,8 @@ class PrestaShop extends AbstractProvider
                 $this->wellKnown = new WellKnown(
                     $this->fetchWellKnown($this->getOauth2Url(), $this->verify)
                 );
-                /* @phpstan-ignore-next-line */
             } catch (\Throwable $e) {
+                /* @phpstan-ignore-next-line */
             } catch (\Exception $e) {
             }
             if (isset($e)) {

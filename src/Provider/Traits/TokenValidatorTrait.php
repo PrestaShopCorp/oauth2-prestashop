@@ -67,6 +67,7 @@ trait TokenValidatorTrait
             throw new KidInvalidException($e->getMessage());
         } catch (\Throwable $e) {
             throw new Exception\TokenInvalidException($e->getMessage());
+            /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
             throw new Exception\TokenInvalidException($e->getMessage());
         }
