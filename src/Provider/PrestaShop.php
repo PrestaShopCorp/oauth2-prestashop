@@ -90,6 +90,7 @@ class PrestaShop extends AbstractProvider
      */
     public function getWellKnown()
     {
+        /* @phpstan-ignore-next-line */
         if (!isset($this->wellKnown)) {
             try {
                 $this->wellKnown = new WellKnown(

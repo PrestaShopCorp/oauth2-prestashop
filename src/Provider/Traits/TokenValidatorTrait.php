@@ -43,6 +43,7 @@ trait TokenValidatorTrait
 
     /**
      * @param string $token
+     * @param bool $refreshJwks
      *
      * @return object decoded token
      *

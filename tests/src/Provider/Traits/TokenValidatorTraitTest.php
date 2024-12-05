@@ -191,11 +191,11 @@ JSON;
      */
     public function itShouldStoreCachedJwks()
     {
-        $this->assertFileDoesNotExist($this->cachedFile->getFilename());
+        $this->assertFalse(file_exists($this->cachedFile->getFilename()));
 
         $this->provider->getJwks();
 
-        $this->assertFileExists($this->cachedFile->getFilename());
+        $this->assertTrue(file_exists($this->cachedFile->getFilename()));
     }
 
     /**
