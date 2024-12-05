@@ -37,6 +37,7 @@ trait TokenValidatorTrait
                 )->getBody()
             );
         }
+
         return json_decode($this->cachedJwks->read(), true);
     }
 
@@ -69,9 +70,9 @@ trait TokenValidatorTrait
         } catch (\Exception $e) {
             throw new Exception\TokenInvalidException($e->getMessage());
         }
+
         return $token;
     }
-
 
     /**
      * @param string $token string token to be validated
@@ -93,17 +94,13 @@ trait TokenValidatorTrait
         // check expected scopes are included
         $scp = is_array($token->scp) ? array_unique($token->scp) : [];
         if (count(array_intersect($scope, $scp)) < count($scope)) {
-            throw new Exception\ScopeInvalidException(
-                'Expected scopes not matched: ' . implode(', ', $scope)
-            );
+            throw new Exception\ScopeInvalidException('Expected scopes not matched: ' . implode(', ', $scope));
         }
 
         // check expected audiences are included
         $aud = is_array($token->aud) ? array_unique($token->aud) : [];
         if (count(array_intersect($audience, $aud)) < count($audience)) {
-            throw new Exception\AudienceInvalidException(
-                'Expected audiences not matched: ' . implode(', ', $audience)
-            );
+            throw new Exception\AudienceInvalidException('Expected audiences not matched: ' . implode(', ', $audience));
         }
 
         return $token;

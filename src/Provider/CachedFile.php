@@ -20,7 +20,7 @@ class CachedFile
      *
      * @throws \Exception
      */
-    public function __construct($filename, $ttl=null)
+    public function __construct($filename, $ttl = null)
     {
         $this->filename = $filename;
         $this->ttl = $ttl;
@@ -39,8 +39,10 @@ class CachedFile
             if ($this->ttl === null) {
                 return false;
             }
+
             return time() - filemtime($this->filename) > $this->ttl;
         }
+
         return true;
     }
 
@@ -96,6 +98,7 @@ class CachedFile
         if (!file_exists(dirname($this->filename))) {
             return mkdir(dirname($this->filename), 0755, true);
         }
+
         return true;
     }
 

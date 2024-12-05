@@ -102,7 +102,6 @@ E/ipfpAtIOcKEIBYzwYt7lD9
 -----END PRIVATE KEY-----
 EOD;
 
-
     // https://pem2jwk.vercel.app/
     private $jwks = <<<JSON
 {
@@ -135,7 +134,6 @@ JSON;
 }
 
 JSON;
-
 
     /**
      * @var \PHPUnit_Framework_MockObject_MockObject|ResponseInterface|(ResponseInterface&\PHPUnit_Framework_MockObject_MockObject)
@@ -207,7 +205,7 @@ JSON;
     {
         $token = $this->provider->verifyToken(JWT::encode([
             'aud' => [
-                'https://mashop.net'
+                'https://mashop.net',
             ],
         ], $this->privateKey, 'RS256', 'public:hydra.jwt.access-token'));
 
@@ -223,7 +221,7 @@ JSON;
 
         $this->provider->verifyToken(JWT::encode([
             'aud' => [
-                'https://mashop.net'
+                'https://mashop.net',
             ],
         ], $this->privateKey2, 'RS256', 'public:hydra.jwt.access-token'));
     }
@@ -242,7 +240,7 @@ JSON;
 
         $token = $this->provider->verifyToken(JWT::encode([
             'aud' => [
-                'https://mashop.net'
+                'https://mashop.net',
             ],
         ], $this->privateKey2, 'RS256', 'public:hydra.jwt.access-token2'));
 
@@ -258,7 +256,7 @@ JSON;
 
         $this->provider->verifyToken(JWT::encode([
             'aud' => [
-                'https://mashop.net'
+                'https://mashop.net',
             ],
         ], $this->privateKey2, 'RS256', 'naughty-kid'));
     }
@@ -270,27 +268,27 @@ JSON;
     {
         $jwtString = $this->encodeToken([
             'aud' => [
-                'https://mashop.net'
+                'https://mashop.net',
             ],
             'scp' => [
                 'entity.read',
                 'entity.write',
                 'entity.delete',
-            ]
+            ],
         ]);
 
         $token = $this->provider->validateToken($jwtString, [
             'entity.read',
             'entity.write',
         ], [
-            'https://mashop.net'
+            'https://mashop.net',
         ]);
 
         $this->assertEquals('https://mashop.net', $token->aud[0]);
 
         $token = $this->provider->validateToken($jwtString, [
         ], [
-            'https://mashop.net'
+            'https://mashop.net',
         ]);
 
         $this->assertEquals('https://mashop.net', $token->aud[0]);
@@ -312,20 +310,20 @@ JSON;
 
         $jwtString = $this->encodeToken([
             'aud' => [
-                'https://mashop.net'
+                'https://mashop.net',
             ],
             'scp' => [
                 'entity.read',
                 'entity.write',
                 'entity.delete',
-            ]
+            ],
         ]);
 
         $this->provider->validateToken($jwtString, [
             'entity.read',
             'entity.write',
         ], [
-            'https://shopifees.net'
+            'https://shopifees.net',
         ]);
     }
 
@@ -338,20 +336,20 @@ JSON;
 
         $jwtString = $this->encodeToken([
             'aud' => [
-                'https://mashop.net'
+                'https://mashop.net',
             ],
             'scp' => [
                 'entity.red',
                 'entity.write',
                 'entity.delete',
-            ]
+            ],
         ]);
 
         $this->provider->validateToken($jwtString, [
             'entity.read',
             'entity.write',
         ], [
-            'https://mashop.net'
+            'https://mashop.net',
         ]);
     }
 
@@ -367,6 +365,7 @@ JSON;
         if ($privateKey === null) {
             $privateKey = $this->privateKey;
         }
+
         return JWT::encode($payload, $privateKey, 'RS256', $kid);
     }
 
@@ -377,7 +376,7 @@ JSON;
     {
         $client = $this->createMock(ClientInterface::class);
         $client->method('send')
-            ->willReturnCallback(function ($request) use ($client) {
+            ->willReturnCallback(function ($request) {
                 /** @var RequestInterface $request */
                 if (preg_match('/jwks\.json$/', $request->getUri())) {
                     return $this->jwksResponse;
