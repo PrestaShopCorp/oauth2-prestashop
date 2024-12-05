@@ -3,14 +3,12 @@
 namespace PrestaShop\OAuth2\Client\Test\Provider;
 
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Psr7\Utils;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
-use PHPUnit\Framework\TestCase;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use PrestaShop\OAuth2\Client\Provider\WellKnown;
-use Psr\Http\Message\ResponseInterface;
+use PrestaShop\OAuth2\Client\Test\TestCase;
 
 class PrestaShopTest extends TestCase
 {
@@ -43,29 +41,6 @@ class PrestaShopTest extends TestCase
                 'token_endpoint' => $oauthUrl . '/oauth2/token',
                 'userinfo_endpoint' => $oauthUrl . '/userinfo',
             ]));
-    }
-
-    /**
-     * @param $responseBody
-     * @param $statusCode
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|ResponseInterface|(ResponseInterface&\PHPUnit_Framework_MockObject_MockObject)
-     */
-    private function createMockResponse($responseBody, $statusCode = 200)
-    {
-        $response = $this->createMock(ResponseInterface::class);
-
-        $response->method('getStatusCode')
-            ->willReturn($statusCode);
-
-        $response->method('getBody')
-            ->willReturn(Utils::streamFor($responseBody));
-
-        $response->method('getHeader')
-            ->with('content-type')
-            ->willReturn(['application/json']);
-
-        return $response;
     }
 
     /**

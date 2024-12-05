@@ -24,12 +24,15 @@ use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
+use PrestaShop\OAuth2\Client\Provider\Traits\LogoutTrait;
+use PrestaShop\OAuth2\Client\Provider\Traits\TokenValidatorTrait;
 use Psr\Http\Message\ResponseInterface;
 
 class PrestaShop extends AbstractProvider
 {
     use BearerAuthorizationTrait;
     use LogoutTrait;
+    use TokenValidatorTrait;
 
     /**
      * @var string If set, will be sent as the "prompt" parameter
@@ -86,13 +89,13 @@ class PrestaShop extends AbstractProvider
      */
     public function getWellKnown()
     {
-        /* @phpstan-ignore-next-line */
         if (!isset($this->wellKnown)) {
             try {
                 $this->wellKnown = new WellKnown(
                     $this->fetchWellKnown($this->getOauth2Url(), $this->verify)
                 );
-            } catch (\Error $e) {
+                /* @phpstan-ignore-next-line */
+            } catch (\Throwable $e) {
             } catch (\Exception $e) {
             }
             if (isset($e)) {
@@ -152,6 +155,29 @@ class PrestaShop extends AbstractProvider
     }
 
     /**
+     * @return string[]
+     */
+    public function getDefaultScopes()
+    {
+        return ['openid', 'offline_access'];
+    }
+
+    /**
+     * Requests and returns the resource owner of given access token.
+     *
+     * @param AccessToken $token
+     *
+     * @return PrestaShopUser
+     */
+    public function getResourceOwner(AccessToken $token)
+    {
+        /** @var PrestaShopUser $resourceOwner */
+        $resourceOwner = parent::getResourceOwner($token);
+
+        return $resourceOwner;
+    }
+
+    /**
      * @param array $options
      *
      * @return string[]
@@ -173,14 +199,6 @@ class PrestaShop extends AbstractProvider
         $options = parent::getAuthorizationParameters($options);
 
         return $options;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getDefaultScopes()
-    {
-        return ['openid', 'offline_access'];
     }
 
     /**
@@ -221,20 +239,5 @@ class PrestaShop extends AbstractProvider
     protected function createResourceOwner(array $response, AccessToken $token)
     {
         return new PrestaShopUser($response);
-    }
-
-    /**
-     * Requests and returns the resource owner of given access token.
-     *
-     * @param AccessToken $token
-     *
-     * @return PrestaShopUser
-     */
-    public function getResourceOwner(AccessToken $token)
-    {
-        /** @var PrestaShopUser $resourceOwner */
-        $resourceOwner = parent::getResourceOwner($token);
-
-        return $resourceOwner;
     }
 }

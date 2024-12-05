@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\OAuth2\Client\Test\Provider;
+namespace PrestaShop\OAuth2\Client\Test\Provider\Traits;
 
 use PHPUnit\Framework\TestCase;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
