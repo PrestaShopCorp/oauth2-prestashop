@@ -43,6 +43,9 @@ $prestaShopProvider = new \PrestaShop\OAuth2\Client\Provider\PrestaShop([
     'clientSecret' => 'yourClientSecret', // The client password assigned to you by PrestaShop
     'redirectUri' => 'yourClientRedirectUri', // The URL responding to the code flow implemented here
     // Optional parameters
+    'cachedWellKnown' => new CachedFile(
+        __DIR__ . '/var/cache/openid-configuration.json', 15 * 60
+    ),
     'uiLocales' => ['fr-FR', 'en'],
     'acrValues' => ['prompt:create'], // In that specific case we change the default prompt to the "register" page
 ]);
@@ -117,6 +120,9 @@ $prestaShopProvider = new \PrestaShop\OAuth2\Client\Provider\PrestaShop([
     'redirectUri' => 'yourClientRedirectUri', // The URL responding to the code flow implemented here
     'postLogoutCallbackUri' => 'yourLogoutCallbackUri', // Logout url whitelisted among the ones defined with your client
     // Optional parameters
+    'cachedWellKnown' => new CachedFile(
+        __DIR__ . '/var/cache/openid-configuration.json', 15 * 60
+    ),
     'uiLocales' => ['fr-FR', 'en'],
     'acrValues' => ['prompt:create'], // In that specific case we change the default prompt to the "register" page
 ]);
@@ -139,6 +145,45 @@ if (isset($_GET['oauth2Callback')) {
 
     header('Location: ' . $logoutUrl);
     exit;
+}
+```
+
+## Token Validation
+
+```php
+$prestaShopProvider = new \PrestaShop\OAuth2\Client\Provider\PrestaShop([
+    'clientId' => 'yourClientId', // The client ID assigned to you by PrestaShop
+    'clientSecret' => 'yourClientSecret', // The client password assigned to you by PrestaShop
+    'redirectUri' => 'yourClientRedirectUri', // The URL responding to the code flow implemented here
+    // Optional parameters
+    'cachedJwks' => new CachedFile(__DIR__ . '/var/cache/jwks.json'),
+    'cachedWellKnown' => new CachedFile(
+        __DIR__ . '/var/cache/openid-configuration.json', 15 * 60
+    ),
+    'uiLocales' => ['fr-FR', 'en'],
+    'acrValues' => ['prompt:create'], // In that specific case we change the default prompt to the "register" page
+]);
+
+try {
+    // Only verifying a token
+    $prestaShopProvider->verifyToken($jwtString);
+} catch (SignatureInvalidException) {
+} catch (TokenExpiredException) {
+} catch (TokenInvalidException) {
+}
+
+try {
+    // Verifying and checking required scope(s) and audience(s)
+    $prestaShopProvider->validateToken(
+        $jwtString, 
+        ['resource.read', 'resource.wrire'], 
+        ['https://an-audience']
+    );
+} catch (SignatureInvalidException) {
+} catch (TokenExpiredException) {
+} catch (ScopeInvalidException) {
+} catch (AudienceInvalidException) {
+} catch (TokenInvalidException) {
 }
 ```
 
