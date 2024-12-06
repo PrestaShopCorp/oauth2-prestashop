@@ -2,29 +2,52 @@
 
 namespace PrestaShop\OAuth2\Client\Test\Provider\Traits;
 
-use PHPUnit\Framework\TestCase;
+use PrestaShop\OAuth2\Client\Provider\CachedFile;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
+use PrestaShop\OAuth2\Client\Test\TestCase;
 
 class LogoutTraitTest extends TestCase
 {
     /**
-     * @var PrestaShop
+     * @var CachedFile
      */
-    private $provider;
+    private $cachedOpenIdConfiguration;
+
+    /**
+     * @var string
+     */
+    private $wellKnown = <<<JSON
+{
+    "authorization_endpoint": "https://oauth.foo.bar/oauth2/auth",
+    "token_endpoint": "https://oauth.foo.bar/oauth2/token",
+    "userinfo_endpoint": "https://oauth.foo.bar/userinfo",
+    "jwks_uri": "https://oauth.foo.bar/.well-known/jwks.json",
+    "end_session_endpoint":"https://oauth.foo.bar/oauth2/sessions/logout"
+}
+JSON;
 
     /**
      * @return void
      */
     protected function setUp(): void
     {
+        $this->cachedOpenIdConfiguration = new CachedFile(
+            $this->getTestBaseDir() . '/var/cache/openid-configuration.json', 15 * 60
+        );
+
         $this->provider = new PrestaShop([
             'clientId' => 'test-client',
             'clientSecret' => 'secret',
             'redirectUri' => 'https://test-client-redirect.net',
+            'cachedWellKnown' => $this->cachedOpenIdConfiguration,
             'postLogoutCallbackUri' => 'https://test-client-redirect.net/logout?oauth2Callback',
             'uiLocales' => ['fr-CA', 'en'],
             'acrValues' => ['prompt:login'],
         ]);
+
+        $this->wellKnownResponse = $this->createMockResponse($this->wellKnown);
+        $this->cachedOpenIdConfiguration->clear();
+        $this->initHttpClient();
     }
 
     /**
@@ -85,6 +108,7 @@ class LogoutTraitTest extends TestCase
             'clientId' => 'test-client',
             'clientSecret' => 'secret',
             'redirectUri' => 'https://test-client-redirect.net',
+            'cachedWellKnown' => $this->cachedOpenIdConfiguration,
             // 'postLogoutCallbackUri' => 'https://test-client-redirect.net/logout?oauth2Callback',
             'uiLocales' => ['fr-CA', 'en'],
             'acrValues' => ['prompt:login'],
@@ -167,6 +191,7 @@ class LogoutTraitTest extends TestCase
             'clientId' => 'test-client',
             'clientSecret' => 'secret',
             'redirectUri' => 'https://test-client-redirect.net',
+            'cachedWellKnown' => $this->cachedOpenIdConfiguration,
             // 'postLogoutCallbackUri' => 'https://test-client-redirect.net/logout?oauth2Callback',
             'uiLocales' => ['fr-CA', 'en'],
             'acrValues' => ['prompt:login'],

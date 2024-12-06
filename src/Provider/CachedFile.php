@@ -23,7 +23,7 @@ class CachedFile
     public function __construct($filename, $ttl = null)
     {
         $this->filename = $filename;
-        $this->ttl = $ttl;
+        $this->ttl = (int) $ttl;
 
         $this->initDirectory();
         $this->assertReadable();

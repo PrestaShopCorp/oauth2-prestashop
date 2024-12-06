@@ -2,9 +2,9 @@
 
 namespace PrestaShop\OAuth2\Client\Test\Provider;
 
-use GuzzleHttp\ClientInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
+use PrestaShop\OAuth2\Client\Provider\CachedFile;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use PrestaShop\OAuth2\Client\Provider\WellKnown;
@@ -13,34 +13,124 @@ use PrestaShop\OAuth2\Client\Test\TestCase;
 class PrestaShopTest extends TestCase
 {
     /**
-     * @var PrestaShop
+     * @var CachedFile
      */
-    private $provider;
+    private $cachedOpenIdConfiguration;
+
+    /**
+     * @var string
+     */
+    private $wellKnown = <<<JSON
+{
+    "authorization_endpoint": "https://oauth.foo.bar/oauth2/auth",
+    "token_endpoint": "https://oauth.foo.bar/oauth2/token",
+    "userinfo_endpoint": "https://oauth.foo.bar/userinfo",
+    "jwks_uri": "https://oauth.foo.bar/.well-known/jwks.json"
+}
+JSON;
 
     /**
      * @return void
      */
     protected function setUp(): void
     {
-        $this->provider = $this->getMockBuilder(PrestaShop::class)
-            ->setConstructorArgs([[
-                'clientId' => 'test-client',
-                'clientSecret' => 'secret',
-                'redirectUri' => 'https://test-client-redirect.net',
-                'uiLocales' => ['fr-CA', 'en'],
-                'acrValues' => ['prompt:login'],
-            ]])
-            ->setMethods(['getWellKnown'])
-            ->getMock();
+        // $this->cachedJwks = new CachedFile($this->getTestBaseDir() . '/var/cache/jwks.json');
+        $this->cachedOpenIdConfiguration = new CachedFile(
+            $this->getTestBaseDir() . '/var/cache/openid-configuration.json', 15 * 60
+        );
 
-        $oauthUrl = 'https://oauth.foo.bar';
+        $this->provider = new PrestaShop([
+            'clientId' => 'test-client',
+            'clientSecret' => 'secret',
+            'redirectUri' => 'https://test-client-redirect.net',
+            'cachedWellKnown' => $this->cachedOpenIdConfiguration,
+            'uiLocales' => ['fr-CA', 'en'],
+            'acrValues' => ['prompt:login'],
+        ]);
 
-        $this->provider->method('getWellKnown')
-            ->willReturn(new WellKnown([
-                'authorization_endpoint' => $oauthUrl . '/oauth2/auth',
-                'token_endpoint' => $oauthUrl . '/oauth2/token',
-                'userinfo_endpoint' => $oauthUrl . '/userinfo',
-            ]));
+        $this->wellKnownResponse = $this->createMockResponse($this->wellKnown);
+        $this->cachedOpenIdConfiguration->clear();
+        $this->initHttpClient();
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotFailIfCachedFileNotConfigured()
+    {
+        $this->provider = new PrestaShop([
+            'clientId' => 'test-client',
+            'clientSecret' => 'secret',
+            'redirectUri' => 'https://test-client-redirect.net',
+            // 'cachedWellKnown' => $this->cachedOpenIdConfiguration,
+            'uiLocales' => ['fr-CA', 'en'],
+            'acrValues' => ['prompt:login'],
+        ]);
+        $this->wellKnownResponse = $this->createMockResponse($this->wellKnown);
+        $this->initHttpClient();
+
+        $this->assertInstanceOf(WellKnown::class, $this->provider->getWellKnown());
+
+        $this->assertFalse(file_exists($this->cachedOpenIdConfiguration->getFilename()));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldStoreCachedOpenIdConfiguration()
+    {
+        $this->assertFalse(file_exists($this->cachedOpenIdConfiguration->getFilename()));
+
+        $this->assertInstanceOf(WellKnown::class, $this->provider->getWellKnown());
+
+        $this->assertTrue(file_exists($this->cachedOpenIdConfiguration->getFilename()));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldRefreshCachedOpenIdConfiguration()
+    {
+        $this->cachedOpenIdConfiguration = new CachedFile(
+            $this->getTestBaseDir() . '/var/cache/openid-configuration.json', 1
+        );
+
+        $this->provider = new PrestaShop([
+            'clientId' => 'test-client',
+            'clientSecret' => 'secret',
+            'redirectUri' => 'https://test-client-redirect.net',
+            'cachedWellKnown' => $this->cachedOpenIdConfiguration,
+            'uiLocales' => ['fr-CA', 'en'],
+            'acrValues' => ['prompt:login'],
+        ]);
+        $this->cachedOpenIdConfiguration->clear();
+        $this->wellKnownResponse = $this->createMockResponse($this->wellKnown);
+        $this->initHttpClient();
+
+        $openIdConfiguration = $this->provider->getWellKnown();
+
+        $this->assertFalse($this->cachedOpenIdConfiguration->isExpired());
+        $this->assertInstanceOf(WellKnown::class, $openIdConfiguration);
+        $this->assertEquals('https://oauth.foo.bar/oauth2/auth', $openIdConfiguration->authorization_endpoint);
+
+        usleep(2000000);
+
+        $this->assertTrue($this->cachedOpenIdConfiguration->isExpired());
+
+        $this->wellKnownResponse = $this->createMockResponse(<<<JSON
+{
+    "authorization_endpoint": "https://oauth-refreshed.foo.bar/oauth2/auth",
+    "token_endpoint": "https://oauth-refreshed.foo.bar/oauth2/token",
+    "userinfo_endpoint": "https://oauth-refreshed.foo.bar/userinfo",
+    "jwks_uri": "https://oauth-refreshed.prestashop.com/.well-known/jwks.json"
+}
+JSON
+        );
+
+        $openIdConfiguration = $this->provider->getWellKnown();
+
+        $this->assertInstanceOf(WellKnown::class, $openIdConfiguration);
+        $this->assertEquals('https://oauth-refreshed.foo.bar/oauth2/auth', $openIdConfiguration->authorization_endpoint);
     }
 
     /**
@@ -103,7 +193,7 @@ class PrestaShopTest extends TestCase
      */
     public function itShouldGetAccessTokenWithAuthorizationCode()
     {
-        $response = $this->createMockResponse(<<<JSON
+        $this->accessTokenResponse = $this->createMockResponse(<<<JSON
 {
   "access_token": "mock_access_token",
   "token_type": "bearer",
@@ -114,12 +204,6 @@ class PrestaShopTest extends TestCase
 }
 JSON
         );
-
-        $client = $this->createMock(ClientInterface::class);
-        $client->method('send')
-            ->willReturn($response);
-
-        $this->provider->setHttpClient($client);
 
         $token = $this->provider->getAccessToken('authorization_code', ['code' => 'mock_authorization_code']);
 
@@ -134,7 +218,7 @@ JSON
      */
     public function itShouldGetAccessTokenWithClientCredentials()
     {
-        $response = $this->createMockResponse(<<<JSON
+        $this->accessTokenResponse = $this->createMockResponse(<<<JSON
 {
   "access_token": "mock_access_token",
   "token_type": "bearer",
@@ -144,12 +228,6 @@ JSON
 }
 JSON
         );
-        $client = $this->createMock(ClientInterface::class);
-        $client->method('send')
-            ->withConsecutive([])
-            ->willReturn($response);
-
-        $this->provider->setHttpClient($client);
 
         $token = $this->provider->getAccessToken('client_credentials');
 
@@ -164,7 +242,7 @@ JSON
      */
     public function itShouldGetResourceOwner()
     {
-        $response = $this->createMockResponse(<<<JSON
+        $this->resourceOwnerResponse = $this->createMockResponse(<<<JSON
 {
   "sub": "4rFN5bm2piPeHTYUFtUIwcyFKKKOp",
   "email": "john.doe@prestashop.com",
@@ -174,12 +252,6 @@ JSON
 }
 JSON
         );
-
-        $client = $this->createMock(ClientInterface::class);
-        $client->method('send')
-            ->willReturn($response);
-
-        $this->provider->setHttpClient($client);
 
         $accessToken = $this->createMock(AccessToken::class);
         $accessToken->method('getToken')
@@ -201,19 +273,13 @@ JSON
      */
     public function itShouldHandleErrors()
     {
-        $response = $this->createMockResponse(<<<JSON
+        $this->accessTokenResponse = $this->createMockResponse(<<<JSON
 {
   "error_description": "This is the description",
   "error": "error_name"
 }
 JSON
             , 403);
-
-        $client = $this->createMock(ClientInterface::class);
-        $client->method('send')
-            ->willReturn($response);
-
-        $this->provider->setHttpClient($client);
 
         $this->expectException(IdentityProviderException::class);
         $this->expectExceptionMessage('403 - error_name: This is the description');
@@ -225,13 +291,7 @@ JSON
      */
     public function itShouldHandleEmptyErrors()
     {
-        $response = $this->createMockResponse('{}', 403);
-
-        $client = $this->createMock(ClientInterface::class);
-        $client->method('send')
-            ->willReturn($response);
-
-        $this->provider->setHttpClient($client);
+        $this->accessTokenResponse = $this->createMockResponse('{}', 403);
 
         $this->expectException(IdentityProviderException::class);
         $this->expectExceptionMessage('403 - : ');

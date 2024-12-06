@@ -62,6 +62,11 @@ class PrestaShop extends AbstractProvider
     protected $wellKnown;
 
     /**
+     * @var CachedFile
+     */
+    protected $cachedWellKnown;
+
+    /**
      * @var bool
      */
     protected $verify = true;
@@ -91,10 +96,15 @@ class PrestaShop extends AbstractProvider
     public function getWellKnown()
     {
         /* @phpstan-ignore-next-line */
-        if (!isset($this->wellKnown)) {
+        if (!isset($this->wellKnown) || $this->cachedWellKnown->isExpired()) {
             try {
                 $this->wellKnown = new WellKnown(
-                    $this->fetchWellKnown($this->getOauth2Url(), $this->verify)
+                    json_decode(
+                        $this->cachedWellKnown ?
+                            $this->getCachedWellKnown() :
+                            $this->fetchWellKnown($this->getOauth2Url()),
+                        true
+                    )
                 );
             } catch (\Throwable $e) {
                 /* @phpstan-ignore-next-line */
@@ -109,14 +119,33 @@ class PrestaShop extends AbstractProvider
     }
 
     /**
-     * @param string $url
-     * @param bool $secure
+     * @param bool $forceRefresh
      *
-     * @return array
+     * @return string
      *
      * @throws \Exception
      */
-    protected function fetchWellKnown($url, $secure = true)
+    protected function getCachedWellKnown($forceRefresh = false)
+    {
+        if (null === $this->cachedWellKnown) {
+            throw new \Exception('Cache file not configured');
+        }
+
+        if ($this->cachedWellKnown->isExpired() || $forceRefresh) {
+            $this->cachedWellKnown->write(
+                $this->fetchWellKnown($this->getOauth2Url())
+            );
+        }
+
+        return $this->cachedWellKnown->read();
+    }
+
+    /**
+     * @param string $url
+     *
+     * @return string
+     */
+    protected function fetchWellKnown($url)
     {
         $wellKnownUrl = $url;
         if (strpos($wellKnownUrl, '/.well-known') === false) {
@@ -125,7 +154,7 @@ class PrestaShop extends AbstractProvider
 
         $response = $this->getResponse($this->getRequest('GET', $wellKnownUrl));
 
-        return json_decode($response->getBody(), true);
+        return (string) $response->getBody();
     }
 
     /**

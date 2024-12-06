@@ -3,8 +3,6 @@
 namespace PrestaShop\OAuth2\Client\Test\Provider\Traits;
 
 use Firebase\JWT\JWT;
-use GuzzleHttp\ClientInterface;
-use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
 use PrestaShop\OAuth2\Client\Provider\CachedFile;
 use PrestaShop\OAuth2\Client\Provider\Exception\AudienceInvalidException;
 use PrestaShop\OAuth2\Client\Provider\Exception\KidInvalidException;
@@ -12,26 +10,28 @@ use PrestaShop\OAuth2\Client\Provider\Exception\ScopeInvalidException;
 use PrestaShop\OAuth2\Client\Provider\Exception\SignatureInvalidException;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Test\TestCase;
-use Psr\Http\Message\ResponseInterface;
 
 class TokenValidatorTraitTest extends TestCase
 {
     /**
-     * @var PrestaShop
+     * @var CachedFile
      */
-    private $provider;
+    private $cachedJwks;
 
     /**
      * @var CachedFile
      */
-    private $cachedFile;
+    private $cachedOpenIdConfiguration;
 
+    /**
+     * @var string
+     */
     private $wellKnown = <<<JSON
 {
     "authorization_endpoint": "https://oauth.foo.bar/oauth2/auth",
     "token_endpoint": "https://oauth.foo.bar/oauth2/token",
     "userinfo_endpoint": "https://oauth.foo.bar/userinfo",
-    "jwks_uri": "https://oauth.prestashop.com/.well-known/jwks.json"
+    "jwks_uri": "https://oauth.foo.bar/.well-known/jwks.json"
 }
 JSON;
 
@@ -136,26 +136,21 @@ JSON;
 JSON;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|ResponseInterface|(ResponseInterface&\PHPUnit_Framework_MockObject_MockObject)
-     */
-    private $wellKnownResponse;
-
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|(\PHPUnit_Framework_MockObject_MockObject&ResponseInterface)|ResponseInterface
-     */
-    private $jwksResponse;
-
-    /**
      * @return void
      */
     protected function setUp(): void
     {
-        $this->cachedFile = new CachedFile(__DIR__ . '/../../../var/cache/jwks.json');
+        $this->cachedJwks = new CachedFile($this->getTestBaseDir() . '/var/cache/jwks.json');
+        $this->cachedOpenIdConfiguration = new CachedFile(
+            $this->getTestBaseDir() . '/var/cache/openid-configuration.json', 15 * 60
+        );
+
         $this->provider = new PrestaShop([
             'clientId' => 'test-client',
             'clientSecret' => 'secret',
             'redirectUri' => 'https://test-client-redirect.net',
-            'cachedJwks' => $this->cachedFile,
+            'cachedJwks' => $this->cachedJwks,
+            'cachedWellKnown' => $this->cachedOpenIdConfiguration,
             'uiLocales' => ['fr-CA', 'en'],
             'acrValues' => ['prompt:login'],
         ]);
@@ -163,7 +158,8 @@ JSON;
         $this->wellKnownResponse = $this->createMockResponse($this->wellKnown);
         $this->jwksResponse = $this->createMockResponse($this->jwks);
 
-        $this->cachedFile->clear();
+        $this->cachedJwks->clear();
+        $this->cachedOpenIdConfiguration->clear();
         $this->initHttpClient();
     }
 
@@ -191,11 +187,11 @@ JSON;
      */
     public function itShouldStoreCachedJwks()
     {
-        $this->assertFalse(file_exists($this->cachedFile->getFilename()));
+        $this->assertFalse(file_exists($this->cachedJwks->getFilename()));
 
         $this->provider->getJwks();
 
-        $this->assertTrue(file_exists($this->cachedFile->getFilename()));
+        $this->assertTrue(file_exists($this->cachedJwks->getFilename()));
     }
 
     /**
@@ -367,24 +363,5 @@ JSON;
         }
 
         return JWT::encode($payload, $privateKey, 'RS256', $kid);
-    }
-
-    /**
-     * @return void
-     */
-    private function initHttpClient()
-    {
-        $client = $this->createMock(ClientInterface::class);
-        $client->method('send')
-            ->willReturnCallback(function ($request) {
-                /** @var RequestInterface $request */
-                if (preg_match('/jwks\.json$/', $request->getUri())) {
-                    return $this->jwksResponse;
-                }
-                if (preg_match('/openid\-configuration/', $request->getUri())) {
-                    return $this->wellKnownResponse;
-                }
-            });
-        $this->provider->setHttpClient($client);
     }
 }
