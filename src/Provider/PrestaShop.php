@@ -100,7 +100,7 @@ class PrestaShop extends AbstractProvider
             try {
                 $this->wellKnown = new WellKnown(
                     json_decode(
-                        $this->cachedWellKnown ?
+                        ($this->cachedWellKnown !== null) ?
                             $this->getCachedWellKnown() :
                             $this->fetchWellKnown($this->getOauth2Url()),
                         true
