@@ -92,19 +92,43 @@ trait TokenValidatorTrait
     public function validateToken($token, array $scope = [], array $audience = [])
     {
         $token = $this->verifyToken($token);
+        $this->validateScope($token, $scope);
+        $this->validateAudience($token, $audience);
 
+        return $token;
+    }
+
+    /**
+     * @param object $token
+     * @param array $scope
+     *
+     * @return void
+     *
+     * @throws Exception\ScopeInvalidException
+     */
+    public function validateScope($token, array $scope)
+    {
         // check expected scopes are included
         $scp = is_array($token->scp) ? array_unique($token->scp) : [];
         if (count(array_intersect($scope, $scp)) < count($scope)) {
-            throw new Exception\ScopeInvalidException('Expected scopes not matched: ' . implode(', ', $scope));
+            throw new Exception\ScopeInvalidException('Expected scopes not matched: ' . implode(', ', $scp));
         }
+    }
 
+    /**
+     * @param object $token
+     * @param array $audience
+     *
+     * @return void
+     *
+     * @throws Exception\AudienceInvalidException
+     */
+    public function validateAudience($token, array $audience)
+    {
         // check expected audiences are included
         $aud = is_array($token->aud) ? array_unique($token->aud) : [];
         if (count(array_intersect($audience, $aud)) < count($audience)) {
-            throw new Exception\AudienceInvalidException('Expected audiences not matched: ' . implode(', ', $audience));
+            throw new Exception\AudienceInvalidException('Expected audiences not matched: ' . implode(', ', $aud));
         }
-
-        return $token;
     }
 }
