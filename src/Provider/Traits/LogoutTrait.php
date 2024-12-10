@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\OAuth2\Client\Provider;
+namespace PrestaShop\OAuth2\Client\Provider\Traits;
 
 trait LogoutTrait
 {

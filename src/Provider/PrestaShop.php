@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -24,12 +25,15 @@ use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
+use PrestaShop\OAuth2\Client\Provider\Traits\LogoutTrait;
+use PrestaShop\OAuth2\Client\Provider\Traits\TokenValidatorTrait;
 use Psr\Http\Message\ResponseInterface;
 
 class PrestaShop extends AbstractProvider
 {
     use BearerAuthorizationTrait;
     use LogoutTrait;
+    use TokenValidatorTrait;
 
     /**
      * @var string If set, will be sent as the "prompt" parameter
@@ -56,6 +60,11 @@ class PrestaShop extends AbstractProvider
      * @var WellKnown
      */
     protected $wellKnown;
+
+    /**
+     * @var CachedFile
+     */
+    protected $cachedWellKnown;
 
     /**
      * @var bool
@@ -87,12 +96,18 @@ class PrestaShop extends AbstractProvider
     public function getWellKnown()
     {
         /* @phpstan-ignore-next-line */
-        if (!isset($this->wellKnown)) {
+        if (!isset($this->wellKnown) || $this->cachedWellKnown->isExpired()) {
             try {
                 $this->wellKnown = new WellKnown(
-                    $this->fetchWellKnown($this->getOauth2Url(), $this->verify)
+                    json_decode(
+                        ($this->cachedWellKnown !== null) ?
+                            $this->getCachedWellKnown() :
+                            $this->fetchWellKnown($this->getOauth2Url()),
+                        true
+                    )
                 );
-            } catch (\Error $e) {
+            } catch (\Throwable $e) {
+                /* @phpstan-ignore-next-line */
             } catch (\Exception $e) {
             }
             if (isset($e)) {
@@ -104,14 +119,33 @@ class PrestaShop extends AbstractProvider
     }
 
     /**
-     * @param string $url
-     * @param bool $secure
+     * @param bool $forceRefresh
      *
-     * @return array
+     * @return string
      *
      * @throws \Exception
      */
-    protected function fetchWellKnown($url, $secure = true)
+    protected function getCachedWellKnown($forceRefresh = false)
+    {
+        if (null === $this->cachedWellKnown) {
+            throw new \Exception('Cache file not configured');
+        }
+
+        if ($this->cachedWellKnown->isExpired() || $forceRefresh) {
+            $this->cachedWellKnown->write(
+                $this->fetchWellKnown($this->getOauth2Url())
+            );
+        }
+
+        return $this->cachedWellKnown->read();
+    }
+
+    /**
+     * @param string $url
+     *
+     * @return string
+     */
+    protected function fetchWellKnown($url)
     {
         $wellKnownUrl = $url;
         if (strpos($wellKnownUrl, '/.well-known') === false) {
@@ -120,7 +154,7 @@ class PrestaShop extends AbstractProvider
 
         $response = $this->getResponse($this->getRequest('GET', $wellKnownUrl));
 
-        return json_decode($response->getBody(), true);
+        return (string) $response->getBody();
     }
 
     /**
@@ -152,6 +186,29 @@ class PrestaShop extends AbstractProvider
     }
 
     /**
+     * @return string[]
+     */
+    public function getDefaultScopes()
+    {
+        return ['openid', 'offline_access'];
+    }
+
+    /**
+     * Requests and returns the resource owner of given access token.
+     *
+     * @param AccessToken $token
+     *
+     * @return PrestaShopUser
+     */
+    public function getResourceOwner(AccessToken $token)
+    {
+        /** @var PrestaShopUser $resourceOwner */
+        $resourceOwner = parent::getResourceOwner($token);
+
+        return $resourceOwner;
+    }
+
+    /**
      * @param array $options
      *
      * @return string[]
@@ -173,14 +230,6 @@ class PrestaShop extends AbstractProvider
         $options = parent::getAuthorizationParameters($options);
 
         return $options;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getDefaultScopes()
-    {
-        return ['openid', 'offline_access'];
     }
 
     /**
@@ -221,20 +270,5 @@ class PrestaShop extends AbstractProvider
     protected function createResourceOwner(array $response, AccessToken $token)
     {
         return new PrestaShopUser($response);
-    }
-
-    /**
-     * Requests and returns the resource owner of given access token.
-     *
-     * @param AccessToken $token
-     *
-     * @return PrestaShopUser
-     */
-    public function getResourceOwner(AccessToken $token)
-    {
-        /** @var PrestaShopUser $resourceOwner */
-        $resourceOwner = parent::getResourceOwner($token);
-
-        return $resourceOwner;
     }
 }
