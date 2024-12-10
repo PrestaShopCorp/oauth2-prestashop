@@ -92,8 +92,8 @@ trait TokenValidatorTrait
     public function validateToken($token, array $scope = [], array $audience = [])
     {
         $token = $this->verifyToken($token);
-        $this->validateScope($token, $scope);
         $this->validateAudience($token, $audience);
+        $this->validateScope($token, $scope);
 
         return $token;
     }
