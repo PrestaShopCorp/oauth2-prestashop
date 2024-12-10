@@ -65,7 +65,7 @@ trait TokenValidatorTrait
             if (!$refreshJwks && $e->getMessage() == '"kid" invalid, unable to lookup correct key') {
                 return $this->verifyToken($token, true);
             }
-            throw new KidInvalidException($e->getMessage());
+            throw new Exception\TokenInvalidException($e->getMessage());
         } catch (\Throwable $e) {
             throw new Exception\TokenInvalidException($e->getMessage());
             /* @phpstan-ignore-next-line */
