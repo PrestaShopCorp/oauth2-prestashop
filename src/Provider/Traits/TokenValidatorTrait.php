@@ -8,7 +8,6 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\SignatureInvalidException;
 use PrestaShop\OAuth2\Client\Provider\CachedFile;
 use PrestaShop\OAuth2\Client\Provider\Exception;
-use PrestaShop\OAuth2\Client\Provider\Exception\KidInvalidException;
 
 trait TokenValidatorTrait
 {
@@ -62,8 +61,11 @@ trait TokenValidatorTrait
             throw new Exception\SignatureInvalidException($e->getMessage());
         } catch (\UnexpectedValueException $e) {
             // FIXME: check kid header by ourselves
-            if (!$refreshJwks && $e->getMessage() == '"kid" invalid, unable to lookup correct key') {
-                return $this->verifyToken($token, true);
+            if ($e->getMessage() == '"kid" invalid, unable to lookup correct key') {
+                if (!$refreshJwks) {
+                    return $this->verifyToken($token, true);
+                }
+                throw new Exception\KidInvalidException($e->getMessage());
             }
             throw new Exception\TokenInvalidException($e->getMessage());
         } catch (\Throwable $e) {
